@@ -4,7 +4,7 @@
     "href": "about.html",
     "title": "Research",
     "section": "",
-    "text": "In this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white)."
+    "text": "PPR Pond Mapper\nIn this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white)."
   },
   {
     "objectID": "index.html",
