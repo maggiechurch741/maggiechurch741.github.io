@@ -1,11 +1,13 @@
 ---
-title: "maggiechurch741.github.io"
+title: "Maggie Church"
+toc: false
+about: 
+  template: jolla
+  links:
+  - text: LinkedIn
+    href: https://www.linkedin.com/in/margaret-church-274050a7/
+  - text: Email
+    href: mailto:maggie.church@colostate.edu
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Hi! My name is Maggie Church. I am a Ph.D. student in the [Landscape Modeling lab](https://www.landscapemodeling.net/), led by Dr. Jessica O'Connell. My work focuses on applying remote sensing to better understand ecological systems at broad scales. Outside of my research, I enjoy backpacking, trail running, and trying new ice cream shops.
