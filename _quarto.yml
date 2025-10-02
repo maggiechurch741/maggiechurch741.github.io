@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: docs # where rendered htmls live
 
 website:
   title: "Maggie Church"
@@ -9,7 +9,7 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
-
+      - cv.qmd
 format:
   html:
     theme:

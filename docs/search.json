@@ -2,15 +2,22 @@
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "Research",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "In this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white)."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Maggie Church",
     "section": "",
-    "text": "Hi! My name is Maggie Church. I am a Ph.D. student in the Landscape Modeling lab, led by Dr. Jessica O’Connell. My work focuses on applying remote sensing to better understand ecological systems at broad scales. Outside of my research, I enjoy backpacking, trail running, and trying new ice cream shops."
+    "text": "Hi! My name is Maggie Church. I am a Ph.D. student in the Landscape Modeling lab, led by Dr. Jessica O’Connell. My work focuses on applying remote sensing to better understand surface water dynamics at broad scales. Previously, I spent 4 years as a data analyst and 12 months hiking the U.S. Outside of my research, I enjoy backpacking, trail running, and trying out new ice cream shops."
+  },
+  {
+    "objectID": "cv.html",
+    "href": "cv.html",
+    "title": "CV",
+    "section": "",
+    "text": "Here is my CV:"
   }
 ]

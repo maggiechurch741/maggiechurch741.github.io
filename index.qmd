@@ -3,11 +3,19 @@ title: "Maggie Church"
 toc: false
 about: 
   template: jolla
+  image: media/headshot.jpg
+  image-shape: round
+  image-width: 17em
   links:
-  - text: LinkedIn
+  - icon: linkedin
+    text: LinkedIn
     href: https://www.linkedin.com/in/margaret-church-274050a7/
-  - text: Email
+  - icon: github
+    text: GitHub
+    href: https://github.com/maggiechurch741
+  - icon: envelope
+    text: Email
     href: mailto:maggie.church@colostate.edu
 ---
 
-Hi! My name is Maggie Church. I am a Ph.D. student in the [Landscape Modeling lab](https://www.landscapemodeling.net/), led by Dr. Jessica O'Connell. My work focuses on applying remote sensing to better understand ecological systems at broad scales. Outside of my research, I enjoy backpacking, trail running, and trying new ice cream shops.
+Hi! My name is Maggie Church. I am a Ph.D. student in the [Landscape Modeling lab](https://www.landscapemodeling.net/), led by Dr. Jessica O'Connell. My work focuses on applying remote sensing to better understand surface water dynamics at broad scales. Previously, I spent 4 years as a data analyst and 12 months hiking the U.S. Outside of my research, I enjoy backpacking, trail running, and trying out new ice cream shops.
