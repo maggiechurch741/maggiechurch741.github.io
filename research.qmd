@@ -8,4 +8,4 @@ In this project, I use remote sensing, machine learning, and open science practi
 
 ![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
 
-![The PPR Pond Mapper can supplement aerial surveys by providing surface water estimates throughout the growing season. Notice how the ponds dry out between May and October each year!](media/PPR_Wetlands_Timelapse.mp4) 
+![The PPR Pond Mapper can supplement aerial surveys by providing surface water estimates throughout the growing season. Notice how the ponds dry out between May and October each year!](media/PPR_Wetlands_Timelapse.mp4)  
