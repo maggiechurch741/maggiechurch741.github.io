@@ -7,3 +7,5 @@ title: "Research"
 In this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it [here](https://www.landscapemodeling.net/water.html). 
 
 ![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
+
+![The PPR Pond Mapper can supplement aerial surveys by providing surface water estimates throughout the growing season. Notice how the ponds dry out between May and October each year!](media/PPR_Wetlands_Timelapse.mp4) 

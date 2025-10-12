@@ -6,9 +6,9 @@ website:
   title: "Maggie Church"
   navbar:
     left:
-      - href: index.qmd
+      - href: home.qmd
         text: Home
-      - about.qmd
+      - research.qmd
       - cv.qmd
 format:
   html:
