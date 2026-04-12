@@ -10,6 +10,7 @@ website:
         text: Home
       - research.qmd
       - cv.qmd
+      - personal.qmd
 format:
   html:
     theme:
