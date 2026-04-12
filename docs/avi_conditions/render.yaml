@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: cameron-pass-conditions
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn proxy:app
+    plan: free

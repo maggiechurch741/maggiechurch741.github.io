@@ -1,0 +1,274 @@
+/* ── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #eef1f5;
+  color: #1f2933;
+  font-size: 15px;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+header {
+  background: linear-gradient(135deg, #1a3a3a 0%, #2f5f5f 100%);
+  color: white;
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.header-sub {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+/* ── Location tabs ────────────────────────────────────────── */
+.location-tabs {
+  background: #12282a;
+  padding: 0 1rem;
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.location-tabs::-webkit-scrollbar { display: none; }
+
+.location-tab {
+  padding: 0.6rem 1.1rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+
+.location-tab:hover {
+  color: rgba(255,255,255,0.85);
+}
+
+.location-tab.active {
+  color: white;
+  border-bottom-color: #5ecfb1;
+}
+
+/* ── Location info bar ────────────────────────────────────── */
+#location-info {
+  background: #1e4040;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.78rem;
+  padding: 0.35rem 1.5rem;
+  letter-spacing: 0.03em;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 340px 1fr;
+    align-items: start;
+  }
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+section {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+section h2 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7a8d;
+  border-bottom: 1px solid #e5e9ef;
+  padding-bottom: 0.5rem;
+}
+
+/* ── SNOTEL stats ─────────────────────────────────────────── */
+#snotel p {
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+#snotel p strong {
+  color: #6b7a8d;
+  font-weight: 500;
+}
+
+#snotel-chart {
+  margin-top: 0.25rem;
+}
+
+/* ── CAIC forecast ────────────────────────────────────────── */
+#caic-forecast p {
+  font-size: 0.82rem;
+  color: #6b7a8d;
+}
+
+#caic-forecast h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: #1f2933;
+}
+
+#caic-forecast ul {
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+#caic-forecast svg {
+  display: block;
+  margin: 0.25rem auto;
+}
+
+/* ── CAIC disclaimer ──────────────────────────────────────── */
+#caic-disclaimer {
+  font-size: 0.75rem;
+  color: #9aa5b4;
+  border-top: 1px solid #e5e9ef;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+#caic-disclaimer a {
+  color: #2f5f5f;
+}
+
+/* ── Webcam ───────────────────────────────────────────────── */
+#webcam img {
+  width: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+#webcam-time {
+  font-size: 0.75rem;
+  color: #9aa5b4;
+  text-align: right;
+}
+
+/* ── Weather tabs ─────────────────────────────────────────── */
+#chart-container {
+  grid-column: 1;
+}
+
+@media (min-width: 900px) {
+  #chart-container {
+    grid-column: 2;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid #e5e9ef;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tab-button {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #dde2ea;
+  border-radius: 6px;
+  background: white;
+  color: #6b7a8d;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab-button:hover {
+  background: #f0f4f8;
+}
+
+.tab-button.active {
+  background: #2f5f5f;
+  color: white;
+  border-color: #2f5f5f;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Forecast table ───────────────────────────────────────── */
+#forcast_table {
+  overflow: auto;
+  max-height: 600px;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+caption {
+  font-size: 0.75rem;
+  color: #9aa5b4;
+  text-align: left;
+  padding-bottom: 0.4rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: #f5f7fa;
+  color: #6b7a8d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr { border-bottom: 1px solid #f0f2f5; }
+tbody tr:hover { background: #f8fafc; }
+td { padding: 0.55rem 0.75rem; vertical-align: middle; }
+td img { width: 36px; border-radius: 4px; }
+
+/* ── Sentinel ─────────────────────────────────────────────── */
+
+#sentinel p {
+  font-size: 0.8rem;
+  color: #9aa5b4;
+}
+
+#sentinel iframe {
+  width: 100%;
+  height: 420px;
+  border-radius: 6px;
+  border: none;
+}

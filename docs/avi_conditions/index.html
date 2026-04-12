@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cameron Pass Conditions</title>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+    <script src="js/index.js"></script>
+</head>
+<body>
+    <header>
+      <h1></h1>
+    </header>
+
+<nav class="location-tabs" id="location-tabs"></nav>
+
+<div id="location-info"></div>
+
+<main class="layout">
+  <!-- Left column w/ SNOTEL, CAIC and Webcam -->
+  <div class="left-column">
+
+    <section id="snotel-container">
+        <h2>SNOTEL — Joe Wright Reservoir</h2>
+        <div id="snotel"></div>
+        <canvas id="snotel-chart"></canvas>
+    </section>
+
+    <section id="caic-container">
+        <h2>CAIC Avalanche Forecast</h2>
+        <div id="caic-forecast"></div>
+        <p id="caic-disclaimer">⚠️ This site was made by an amateur — always confirm with the <a href="https://avalanche.state.co.us" target="_blank">official CAIC forecast</a>.</p>
+    </section>
+
+    <section id="webcam">
+      <h2>Live Webcam Near Cameron Pass</h2>
+      <img
+        id="cameron-webcam"
+        src="https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg"
+        alt="Live webcam"
+      />
+      <p id="webcam-time"></p>
+    </section>
+  </div>
+
+  <!-- Right column w/ weather data-->
+  <div class="right-column">
+    <section id="chart-container">
+      <div class="tabs">
+        <button class="tab-button" data-tab="forcast_chart">Chart</button>
+        <button class="tab-button active" data-tab="forcast_table">Table</button>
+      </div>
+      <div class="tab-content">
+        <div id="forcast_chart" class="tab-panel">
+          <iframe id="forecast-frame" width="100%" height="600" style="border:none;"></iframe>
+          </div>
+        <div id="forcast_table" class="tab-panel active">
+          <table id="forecast">
+            <caption id="forecast-caption">7-Day Weather Forecast</caption>
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Temp</th>
+                <th>Forecast</th>
+                <th>Icon</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    <!-- Sentinel-2 below weather -->
+    <section id="sentinel">
+      <h2>Latest Sentinel-2 Imagery</h2>
+      <p>Click "Show Latest Date" to see most recent satellite imagery</p>
+      <iframe
+        id="sentinel-frame"
+        width="100%"
+        height="400"
+        style="border:none;">
+      </iframe>
+    </section>
+  </div>
+
+</main>

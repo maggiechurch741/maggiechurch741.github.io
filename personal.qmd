@@ -1,0 +1,9 @@
+---
+title: "Personal"
+---
+
+## Avalanche Conditions
+
+I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley. It started out from a web-making workshop I'd attended, then I let Claude Code churn up the rest. 
+
+[Open Avalanche Conditions →](avi_conditions/index.html)

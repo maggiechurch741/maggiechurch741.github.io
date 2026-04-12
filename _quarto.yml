@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs # where rendered htmls live
+  resources:
+    - avi_conditions/
 
 website:
   title: "Maggie Church"
@@ -10,6 +12,7 @@ website:
         text: Home
       - research.qmd
       - cv.qmd
+      - personal.qmd
 format:
   html:
     theme:
