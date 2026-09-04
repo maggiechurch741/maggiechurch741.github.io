@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs # where rendered htmls live
+  resources:
+    - avi_conditions/
 
 website:
   title: "Maggie Church"
