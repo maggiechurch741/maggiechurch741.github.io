@@ -8,4 +8,84 @@ In this project, I use remote sensing, machine learning, and open science practi
 
 ![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
 
-![The PPR Pond Mapper can supplement aerial surveys by providing surface water estimates throughout the growing season. Notice how the ponds dry out between May and October each year!](media/PPR_Wetlands_Timelapse.mp4)  
+:::: {.plot30-timelapse-player style="max-width: 640px; margin: 1.5em auto;"}
+<img src="media/plot30_panels/panel_01.png" alt="Plot 30 wetland pond status, compared across 2022-2025 growing seasons" id="plot30-frame" style="width:100%; height:auto; display:block; border:1px solid #ddd; border-radius:4px;"/>
+
+::: {style="display:flex; align-items:center; gap:0.75em; margin-top:0.6em;"}
+<button id="plot30-play" aria-label="Play" style="padding:0.25em 0.75em; cursor:pointer; font-size:1em;">
+
+▶
+
+</button>
+
+<input id="plot30-slider" type="range" min="0" max="13" value="0" step="1" style="flex:1;"> [April 1-15]{#plot30-label style="min-width:7.5em; font-size:0.9em; color:#555; text-align:right;"}
+:::
+
+<p style="font-size:0.9em; color:#555; margin-top:0.5em;">
+
+Ponded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each \~2-week period.
+
+</p>
+::::
+
+```{=html}
+<script>
+(function() {
+  var labels = ["April 1-15","April 16-30","May 1-15","May 16-31","June 1-15","June 16-30","July 1-15","July 16-31","August 1-15","August 16-31","September 1-15","September 16-30","October 1-15","October 16-31"];
+  var frameCount = labels.length;
+  var img = document.getElementById('plot30-frame');
+  var slider = document.getElementById('plot30-slider');
+  var label = document.getElementById('plot30-label');
+  var playBtn = document.getElementById('plot30-play');
+  var playing = false;
+  var timer = null;
+
+  function frameSrc(i) {
+    var n = i + 1;
+    var padded = n < 10 ? '0' + n : '' + n;
+    return 'media/plot30_panels/panel_' + padded + '.png';
+  }
+
+  function showFrame(i) {
+    img.src = frameSrc(i);
+    label.textContent = labels[i];
+    slider.value = i;
+  }
+
+  function stepFrame() {
+    var next = (parseInt(slider.value, 10) + 1) % frameCount;
+    showFrame(next);
+  }
+
+  function stopPlaying() {
+    playing = false;
+    playBtn.innerHTML = '&#9654;';
+    playBtn.setAttribute('aria-label', 'Play');
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function startPlaying() {
+    playing = true;
+    playBtn.innerHTML = '&#10074;&#10074;';
+    playBtn.setAttribute('aria-label', 'Pause');
+    timer = setInterval(stepFrame, 700);
+  }
+
+  slider.addEventListener('input', function() {
+    stopPlaying();
+    showFrame(parseInt(slider.value, 10));
+  });
+
+  playBtn.addEventListener('click', function() {
+    if (playing) { stopPlaying(); } else { startPlaying(); }
+  });
+
+  for (var i = 0; i < frameCount; i++) {
+    var preload = new Image();
+    preload.src = frameSrc(i);
+  }
+
+  showFrame(0);
+})();
+</script>
+```
