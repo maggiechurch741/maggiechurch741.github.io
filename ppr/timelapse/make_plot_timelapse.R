@@ -207,8 +207,8 @@ for (i in seq_along(period_codes)) {
   # position -- so these labels must match the actual draw order: the 4
   # year panels, then the scale bar, then the locator inset, then the
   # legend.
-  layout(matrix(c(1, 2, 0, 0, 3, 4, 5, 5, 6, 7), nrow = 5, byrow = TRUE),
-         heights = c(1, 0.04, 1, 0.09, 0.20))
+  layout(matrix(c(1, 2, 0, 0, 3, 4, 5, 5, 0, 0, 6, 7), nrow = 6, byrow = TRUE),
+         heights = c(1, 0.04, 1, 0.09, 0.05, 0.20))
 
   for (j in seq_along(years)) {
     par(mar = c(0.3, 0.3, 2, 0.3))

@@ -4,7 +4,7 @@ I use remote sensing, AI modeling, and open science practices to map prairie pot
 
 This project is funded by NASA and done in collaboration with the USFWS and Ducks Unlimited to better inform waterfowl conservation.
 
-:::: {.plot30-timelapse-player style="max-width: 340px; margin: 1.5em auto;"}
+:::: {.plot30-timelapse-player style="max-width: 400px; margin: 1.5em auto;"}
 <img src="media/plot30_panels/panel_01.png" alt="Plot 30 wetland pond status, compared across 2022-2025 growing seasons" id="plot30-frame" style="width:100%; height:auto; display:block; border:1px solid #ddd; border-radius:4px;"/>
 
 ::: {style="display:flex; align-items:center; gap:0.75em; margin-top:0.6em;"}
@@ -22,7 +22,7 @@ This project is funded by NASA and done in collaboration with the USFWS and Duck
 
 Prairie potholes generally fill with snowmelt and rain, and many dry by fall. But notice how these patterns change from year-to-year.
 
-::: {style="max-width: 340px; margin: 1.5em auto;"}
+::: {style="max-width: 500px; margin: 1.5em auto;"}
 ![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
 :::
 
