@@ -21,7 +21,7 @@ This project is funded by NASA and done in collaboration with the USFWS and Duck
 <input id="plot30-slider" type="range" min="0" max="10" value="0" step="1" style="flex:1;"> [April 1-15]{#plot30-label style="min-width:7.5em; font-size:0.9em; color:#555; text-align:right;"}
 :::
 
-<figcaption>Ponded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each \~2-week period.</figcaption>
+<figcaption>Ponded water (blue) across the 2022-2025 growing seasons. Drag the slider or press play to step through each \~2-week period.</figcaption>
 ::::
 
 Prairie potholes generally fill with snowmelt and rain, and many dry by fall. But notice how these patterns change from year-to-year.
