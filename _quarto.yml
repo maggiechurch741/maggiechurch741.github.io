@@ -10,9 +10,12 @@ website:
     left:
       - href: home.qmd
         text: Home
-      - research.qmd
-      - cv.qmd
-      - personal.qmd
+      - href: research.qmd
+        text: Research
+      - href: cv.qmd
+        text: CV
+      - href: personal.qmd
+        text: Personal
 format:
   html:
     theme:
