@@ -6,9 +6,11 @@ title: "Research"
 
 In this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it [here](https://www.landscapemodeling.net/water.html). 
 
+::: {style="max-width: 550px; margin: 1.5em auto;"}
 ![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
+:::
 
-:::: {.plot30-timelapse-player style="max-width: 640px; margin: 1.5em auto;"}
+:::: {.plot30-timelapse-player style="max-width: 550px; margin: 1.5em auto;"}
 <img src="media/plot30_panels/panel_01.png" alt="Plot 30 wetland pond status, compared across 2022-2025 growing seasons" id="plot30-frame" style="width:100%; height:auto; display:block; border:1px solid #ddd; border-radius:4px;"/>
 
 ::: {style="display:flex; align-items:center; gap:0.75em; margin-top:0.6em;"}

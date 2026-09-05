@@ -320,6 +320,16 @@ function displaySnotel(data) {
 }
 
 ///////////////////////
+// Sentinel-2 "latest date" helper — scopes the Copernicus Browser to a
+// recent window so it lands on the newest available imagery, not "today".
+
+function sentinelLatestUrl(lat, lon) {
+  const now  = new Date();
+  const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  return `https://browser.dataspace.copernicus.eu/?zoom=13&lat=${lat}&lng=${lon}&themeId=DEFAULT-THEME&datasetId=S2_L2A_CDAS&fromTime=${from.toISOString()}&toTime=${now.toISOString()}`;
+}
+
+///////////////////////
 // Load a location
 
 function loadLocation(loc) {
@@ -357,9 +367,17 @@ function loadLocation(loc) {
     }
   });
 
-  // Sentinel
+  // Sentinel — default to a 30-day lookback so the viewer opens on the
+  // most recent available pass instead of "today" (which usually has none,
+  // since Sentinel-2 only revisits every ~5 days).
   const s2Frame = document.getElementById("sentinel-frame");
-  if (s2Frame) s2Frame.src = `https://browser.dataspace.copernicus.eu/?zoom=13&lat=${lat}&lng=${lon}&themeId=DEFAULT-THEME&datasetId=S2_L2A_CDAS`;
+  const sentinelBtn = document.getElementById("sentinel-latest-btn");
+  if (s2Frame) s2Frame.src = sentinelLatestUrl(lat, lon);
+  if (sentinelBtn) {
+    sentinelBtn.onclick = () => {
+      if (s2Frame) s2Frame.src = sentinelLatestUrl(lat, lon);
+    };
+  }
 
   // Webcam
   setupWebcam(lat, lon, webcamUrl);

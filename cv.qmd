@@ -3,8 +3,6 @@ title: "CV"
 format: html
 ---
 
-Here is my CV:
-
 ```{=html}
 <embed src="CV - Church.pdf"
 type="application/pdf" width ="100%"

@@ -71,17 +71,16 @@ library(magick)
 library(maps)
 
 # ---- which plot to build ------------------------------------------------
-plot_id <- "plot33"   # change to "plot1" to rebuild the plot1 timelapse
+plot_id <- "plot30"   # change to "plot1" to rebuild the plot1 timelapse
 
 # ---- paths ------------------------------------------------------------
 tif_dir <- file.path("ppr/timelapse", plot_id)
 out_dir <- file.path("media", paste0(plot_id, "_panels"))
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-# ---- the within-season periods, in order ----------------------------
-# Season runs April 1 through mid-September (stops at Sep 15 -- growing
-# season wraps up there for this comparison, so no need to render frames
-# past that point).
+# ---- the within-season periods, in order --------------------------------
+# Truncated to end mid-September (a display choice for plot30, matching how
+# far its story arc needs to go -- not a data-availability cutoff).
 period_codes <- c(
   "0401_0415", "0416_0430", "0501_0515", "0516_0531",
   "0601_0615", "0616_0630", "0701_0715", "0716_0731",
@@ -135,21 +134,30 @@ if (!is.null(ref_r)) {
   plot_state  <- map.where("state", plot_lonlat[1], plot_lonlat[2])
 }
 
-# ---- edge-crop: trims the "no prediction" padding around the actual data --
-# The classifier's real coverage footprint is a rotated rectangle inscribed
-# in each raster's north-up bounding box; cells outside that rotated
-# footprint were filled with the same code as "upland/other" (2), so
-# they're visually indistinguishable from real upland but aren't real
-# predictions -- they show up as a band of flat color (or, in basemap mode,
-# hide real imagery behind that band) along one or more edges. Measured
-# empirically per plot (checked to be identical across every period/year
-# for a given plot, since it's a fixed artifact of that plot's swath
-# geometry, not something that varies scene to scene) and hardcoded here,
-# with a small safety margin added. Add an entry for a new plot_id here if
-# it shows the same kind of edge slivers; omitted/unlisted plots get no
-# crop (left = right = top = bottom = 0).
+# ---- edge-crop: trims each raster's extent before plotting -----------------
+# Two different reasons a plot might want this, both handled the same way:
+#
+#  - plot33: the classifier's real coverage footprint is a rotated rectangle
+#    inscribed in the raster's north-up bounding box; cells outside that
+#    rotated footprint were filled with the same code as "upland/other" (2),
+#    so they're visually indistinguishable from real upland but aren't real
+#    predictions -- they show up as a band of flat color (or, in basemap
+#    mode, hide real imagery behind that band) along one or more edges.
+#    Measured empirically (checked to be identical across every period/year
+#    for this plot, since it's a fixed artifact of its swath geometry, not
+#    something that varies scene to scene), with a small safety margin added.
+#
+#  - plot30: a purely cosmetic zoom-in -- the full footprint is mostly bare
+#    field with ponds scattered across it, so at panel size the water reads
+#    as sparse specks. Trimming a bit off each edge tightens the framing so
+#    the ponds that are there read more clearly, without cropping so hard
+#    that real ponds near the edges get cut off.
+#
+# Add an entry for a new plot_id here for either reason; omitted/unlisted
+# plots get no crop (left = right = top = bottom = 0).
 crop_buffers_m <- list(
-  plot33 = c(left = 50, right = 60, top = 350, bottom = 360)
+  plot33 = c(left = 50, right = 60, top = 350, bottom = 360),
+  plot30 = c(left = 900, right = 900, top = 900, bottom = 900)
 )
 buf <- crop_buffers_m[[plot_id]]
 if (is.null(buf)) buf <- c(left = 0, right = 0, top = 0, bottom = 0)
@@ -186,13 +194,17 @@ for (i in seq_along(period_codes)) {
   )
 
   frame_path <- file.path(out_dir, sprintf("panel_%02d.png", i))
-  png(frame_path, width = 1000, height = 1000, res = 150, bg = "white")
+  png(frame_path, width = 1150, height = 1150, res = 150, bg = "white")
 
-  # layout: 2x2 year panels on top (with a thin blank row between the two
-  # panel rows so they don't touch), then a bottom row split between the
+  # layout: the 4 year panels in a 2x2 grid (this plot's footprint is close
+  # to square, so a grid reads far better on a web page than a tall vertical
+  # stack -- constrained to a sensible display width, a grid stays a
+  # reasonable height, where a 4-row stack would run very tall), with a
+  # thin blank row between the two panel rows, another thin blank row
+  # separating the panels from the bottom row, which is split between the
   # locator inset (left) and the shared legend (right)
-  layout(matrix(c(1, 2, 0, 0, 3, 4, 6, 5), nrow = 4, byrow = TRUE),
-         heights = c(1, 0.08, 1, 0.34))
+  layout(matrix(c(1, 2, 0, 0, 3, 4, 0, 0, 6, 5), nrow = 5, byrow = TRUE),
+         heights = c(1, 0.05, 1, 0.07, 0.32))
 
   for (j in seq_along(years)) {
     par(mar = c(0.3, 0.3, 2, 0.3))
@@ -209,8 +221,8 @@ for (i in seq_along(period_codes)) {
       }
       if (j == 1) {
         # scale bar once is enough -- all 4 panels share the same extent
-        sbar(sbar_m, xy = "bottomleft", type = "bar", divs = 2, below = "m",
-             label = c("0", "500", "1 km"), cex = 0.65, lwd = 2)
+        sbar(sbar_m, xy = "bottomleft", type = "bar", divs = 2,
+             label = c("0", "500", "1 km"), cex = 1.6, lwd = 2)
       }
     } else {
       # no data yet for this period/year -- placeholder panel
@@ -218,7 +230,7 @@ for (i in seq_along(period_codes)) {
       box(col = "grey80")
       text(0.5, 0.5, "No data yet", col = "grey60", cex = 1.2)
     }
-    title(main = years[j], cex.main = 1.5, line = 0.3)
+    title(main = years[j], cex.main = 2.6, line = 0.3)
   }
 
   # locator inset
@@ -228,9 +240,9 @@ for (i in seq_along(period_codes)) {
   par(mar = c(0, 0, 0, 0))
   plot.new()
   if (use_basemap) {
-    legend("center", legend = "Ponded water", fill = water_col, bty = "n", cex = 1.1)
+    legend("center", legend = "Ponded water", fill = water_col, bty = "n", cex = 2.0)
   } else {
-    legend("center", legend = labels, fill = pal, bty = "n", cex = 1.1,
+    legend("center", legend = labels, fill = pal, bty = "n", cex = 2.0,
            x.intersp = 1.2, text.width = NA)
   }
 

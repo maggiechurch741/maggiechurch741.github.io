@@ -11,7 +11,7 @@
     "href": "research.html",
     "title": "Research",
     "section": "",
-    "text": "PPR Pond Mapper\nIn this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white).\n\n\n\n\nVideo\nThe PPR Pond Mapper can supplement aerial surveys by providing surface water estimates throughout the growing season. Notice how the ponds dry out between May and October each year!"
+    "text": "PPR Pond Mapper\nIn this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white).\n\n\n\n\n\n\n\n▶\n\n April 1-15\n\n\nPonded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each ~2-week period."
   },
   {
     "objectID": "home.html",

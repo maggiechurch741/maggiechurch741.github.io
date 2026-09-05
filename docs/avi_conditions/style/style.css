@@ -266,6 +266,11 @@ td img { width: 36px; border-radius: 4px; }
   color: #9aa5b4;
 }
 
+#sentinel-latest-btn {
+  margin-left: 0.5rem;
+  vertical-align: baseline;
+}
+
 #sentinel iframe {
   width: 100%;
   height: 420px;
