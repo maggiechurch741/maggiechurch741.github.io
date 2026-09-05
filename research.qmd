@@ -2,15 +2,13 @@
 title: "Research"
 ---
 
-# PPR Pond Mapper
+# Prairie Pond Mapper
 
-In this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it [here](https://www.landscapemodeling.net/water.html). 
+I use remote sensing, AI modeling, and open science practices to map prairie potholes - inland wetlands that dot the Northern Great Plains. The tool I built is called the Prairie Pond Mapper ("PPM"), and is available in Google Earth Engine. Check it out [here](https://code.earthengine.google.com/2f358b4afc3a98f4a21105bf6b5d68dc) and find the documentation [here](https://github.com/maggiechurch741/PPR_Pond_Mapper).
 
-::: {style="max-width: 550px; margin: 1.5em auto;"}
-![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
-:::
+This project is funded by NASA and done in collaboration with the USFWS and Ducks Unlimited to better inform waterfowl conservation.
 
-:::: {.plot30-timelapse-player style="max-width: 550px; margin: 1.5em auto;"}
+:::: {.plot30-timelapse-player style="max-width: 400px; margin: 1.5em auto;"}
 <img src="media/plot30_panels/panel_01.png" alt="Plot 30 wetland pond status, compared across 2022-2025 growing seasons" id="plot30-frame" style="width:100%; height:auto; display:block; border:1px solid #ddd; border-radius:4px;"/>
 
 ::: {style="display:flex; align-items:center; gap:0.75em; margin-top:0.6em;"}
@@ -20,20 +18,22 @@ In this project, I use remote sensing, machine learning, and open science practi
 
 </button>
 
-<input id="plot30-slider" type="range" min="0" max="13" value="0" step="1" style="flex:1;"> [April 1-15]{#plot30-label style="min-width:7.5em; font-size:0.9em; color:#555; text-align:right;"}
+<input id="plot30-slider" type="range" min="0" max="10" value="0" step="1" style="flex:1;"> [April 1-15]{#plot30-label style="min-width:7.5em; font-size:0.9em; color:#555; text-align:right;"}
 :::
 
-<p style="font-size:0.9em; color:#555; margin-top:0.5em;">
-
-Ponded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each \~2-week period.
-
-</p>
+<figcaption>Ponded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each \~2-week period.</figcaption>
 ::::
+
+Prairie potholes generally fill with snowmelt and rain, and many dry by fall. But notice how these patterns change from year-to-year.
+
+::: {style="max-width: 400px; margin: 1.5em auto;"}
+![Example of model performance: estimated surface water (blue) compared to observed surface water delineations (white).](media/ppr_model.png)
+:::
 
 ```{=html}
 <script>
 (function() {
-  var labels = ["April 1-15","April 16-30","May 1-15","May 16-31","June 1-15","June 16-30","July 1-15","July 16-31","August 1-15","August 16-31","September 1-15","September 16-30","October 1-15","October 16-31"];
+  var labels = ["April 1-15","April 16-30","May 1-15","May 16-31","June 1-15","June 16-30","July 1-15","July 16-31","August 1-15","August 16-31","September 1-15"];
   var frameCount = labels.length;
   var img = document.getElementById('plot30-frame');
   var slider = document.getElementById('plot30-slider');
@@ -91,3 +91,9 @@ Ponded water (blue) over satellite imagery of the plot, across the 2022-2025 gro
 })();
 </script>
 ```
+
+The PPM achieved an omission error of 28% and commission error of 15% when tested in areas and time periods it had never seen before. Notably, the PPM detected 71% of ponds, compared to 34–53% for other models (Global Surface Water, Dynamic Surface Water Extent, Dynamic World).
+
+I’m excited to see how we can keep getting better at finding and understanding these underrepresented, easy-to-miss wetlands!
+
+![A partially vegetated prairie pothole in North Dakota](media/pothole.jpg)

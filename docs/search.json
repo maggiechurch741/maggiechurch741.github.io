@@ -11,7 +11,7 @@
     "href": "research.html",
     "title": "Research",
     "section": "",
-    "text": "PPR Pond Mapper\nIn this project, I use remote sensing, machine learning, and open science practices to map terrestrial wetlands in the Great Plains region at a high level of detail. This work is funded by the USFWS and NASA, in an effort to better inform waterfowl conservation. Learn more about it here. \n\n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white).\n\n\n\n\n\n\n\n▶\n\n April 1-15\n\n\nPonded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each ~2-week period."
+    "text": "Prairie Pond Mapper\nI use remote sensing, AI modeling, and open science practices to map prairie potholes - inland wetlands that dot the Northern Great Plains. The tool I built is called the Prairie Pond Mapper (“PPM”), and is available in Google Earth Engine. Check it out here and find the documentation here.\nThis project is funded by NASA and done in collaboration with the USFWS and Ducks Unlimited to better inform waterfowl conservation.\n\n\n\n\n▶\n\n April 1-15\n\n\nPonded water (blue) over satellite imagery of the plot, across the 2022-2025 growing seasons, compared side by side by time of year. Drag the slider or press play to step through each ~2-week period.\n\n\nPrairie potholes generally fill with snowmelt and rain, and many dry by fall. But notice how these patterns change from year-to-year.\n\n\n\n\nExample of model performance: estimated surface water (blue) compared to observed surface water delineations (white).\n\n\n\n\nThe PPM achieved an omission error of 28% and commission error of 15% when tested in areas and time periods it had never seen before. Notably, the PPM detected 71% of ponds, compared to 34–53% for other models (Global Surface Water, Dynamic Surface Water Extent, Dynamic World).\nI’m excited to see how we can keep getting better at finding and understanding these underrepresented, easy-to-miss wetlands!\n\n\n\nA partially vegetated prairie pothole in North Dakota"
   },
   {
     "objectID": "home.html",
@@ -25,13 +25,27 @@
     "href": "personal.html",
     "title": "Personal",
     "section": "",
-    "text": "I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley. It started out from a web-making workshop I’d attended, then I let Claude Code churn up the rest.\nOpen Avalanche Conditions →"
+    "text": "I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley, my two favorite areas to tour. It started out from a web-making workshop I’d attended, then I let Claude Code churn up the rest.\nOpen Avalanche Conditions →"
   },
   {
     "objectID": "personal.html#avalanche-conditions",
     "href": "personal.html#avalanche-conditions",
     "title": "Personal",
     "section": "",
-    "text": "I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley. It started out from a web-making workshop I’d attended, then I let Claude Code churn up the rest.\nOpen Avalanche Conditions →"
+    "text": "I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley, my two favorite areas to tour. It started out from a web-making workshop I’d attended, then I let Claude Code churn up the rest.\nOpen Avalanche Conditions →"
+  },
+  {
+    "objectID": "personal.html#blog-post",
+    "href": "personal.html#blog-post",
+    "title": "Personal",
+    "section": "Blog Post",
+    "text": "Blog Post\nAs a Sustainability Leadership Fellow, I was invited to write about my work using my “Prairie Wetlands in Focus: Using Satellites To Track Wetland Resources As Protections Are Fading”\nCSU Sustainability Guest Post →"
+  },
+  {
+    "objectID": "personal.html#favorite-resources",
+    "href": "personal.html#favorite-resources",
+    "title": "Personal",
+    "section": "Favorite Resources",
+    "text": "Favorite Resources\nI love a list. Here are some of my favorite books, media, and papers related to prairie potholes and remote sensing, with little reviews too.\nMaggie’s Favorite Resources →"
   }
 ]
