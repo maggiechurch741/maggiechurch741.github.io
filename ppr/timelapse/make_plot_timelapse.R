@@ -198,13 +198,14 @@ for (i in seq_along(period_codes)) {
 
   # layout: the 4 year panels in a 2x2 grid (this plot's footprint is close
   # to square, so a grid reads far better on a web page than a tall vertical
-  # stack -- constrained to a sensible display width, a grid stays a
-  # reasonable height, where a 4-row stack would run very tall), with a
-  # thin blank row between the two panel rows, another thin blank row
-  # separating the panels from the bottom row, which is split between the
-  # locator inset (left) and the shared legend (right)
-  layout(matrix(c(1, 2, 0, 0, 3, 4, 0, 0, 6, 5), nrow = 5, byrow = TRUE),
-         heights = c(1, 0.05, 1, 0.07, 0.32))
+  # stack), with a thin blank row between the two panel rows, then a bottom
+  # row split between the locator inset (left) and the shared legend
+  # (right). The bottom row is kept as short as the locator/legend content
+  # allows -- it was previously eating ~18% of the image's total height for
+  # a small map thumbnail and one legend swatch, which is the main reason
+  # the whole thing was reading as too tall on screen.
+  layout(matrix(c(1, 2, 0, 0, 3, 4, 6, 5), nrow = 4, byrow = TRUE),
+         heights = c(1, 0.04, 1, 0.17))
 
   for (j in seq_along(years)) {
     par(mar = c(0.3, 0.3, 2, 0.3))
@@ -252,7 +253,7 @@ for (i in seq_along(period_codes)) {
   # then add back a small uniform margin
   img <- image_read(frame_path)
   img <- image_trim(img)
-  img <- image_border(img, "white", "20x20")
+  img <- image_border(img, "white", "10x10")
   image_write(img, frame_path)
 }
 
