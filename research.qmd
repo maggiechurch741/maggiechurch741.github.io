@@ -1,3 +1,7 @@
+---
+pagetitle: "Research"
+---
+
 # Prairie Pond Mapper
 
 I use remote sensing, AI modeling, and open science practices to map prairie potholes - inland wetlands that dot the Northern Great Plains. The tool I built is called the Prairie Pond Mapper ("PPM"), and is available in Google Earth Engine. Check it out [here](https://code.earthengine.google.com/2f358b4afc3a98f4a21105bf6b5d68dc) and find the documentation [here](https://github.com/maggiechurch741/PPR_Pond_Mapper).

@@ -1,3 +1,7 @@
+---
+pagetitle: "CV"
+---
+
 ```{=html}
 <embed src="CV - Church.pdf"
 type="application/pdf" width ="100%"
