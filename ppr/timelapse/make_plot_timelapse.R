@@ -198,14 +198,17 @@ for (i in seq_along(period_codes)) {
 
   # layout: the 4 year panels in a 2x2 grid (this plot's footprint is close
   # to square, so a grid reads far better on a web page than a tall vertical
-  # stack), with a thin blank row between the two panel rows, then a bottom
-  # row split between the locator inset (left) and the shared legend
-  # (right). The bottom row is kept as short as the locator/legend content
-  # allows -- it was previously eating ~18% of the image's total height for
-  # a small map thumbnail and one legend swatch, which is the main reason
-  # the whole thing was reading as too tall on screen.
-  layout(matrix(c(1, 2, 0, 0, 3, 4, 6, 5), nrow = 4, byrow = TRUE),
-         heights = c(1, 0.04, 1, 0.17))
+  # stack), with a thin blank row between the two panel rows, then its own
+  # row for the scale bar (spanning both columns, below the panels rather
+  # than overlaid on one of them), then a bottom row split between the
+  # locator inset (left) and the shared legend (right).
+  # NOTE: layout() fills regions in the order plots are drawn below (1st
+  # call -> region "1", 2nd -> "2", ...), not by the numeric value's visual
+  # position -- so these labels must match the actual draw order: the 4
+  # year panels, then the scale bar, then the locator inset, then the
+  # legend.
+  layout(matrix(c(1, 2, 0, 0, 3, 4, 5, 5, 6, 7), nrow = 5, byrow = TRUE),
+         heights = c(1, 0.04, 1, 0.09, 0.20))
 
   for (j in seq_along(years)) {
     par(mar = c(0.3, 0.3, 2, 0.3))
@@ -220,11 +223,6 @@ for (i in seq_along(period_codes)) {
         r <- subst(r, 2, 0)   # fold "upland/other" into "dry"
         plot(r, breaks = brks, col = pal, axes = FALSE, legend = FALSE)
       }
-      if (j == 1) {
-        # scale bar once is enough -- all 4 panels share the same extent
-        sbar(sbar_m, xy = "bottomleft", type = "bar", divs = 2,
-             label = c("0", "500", "1 km"), cex = 1.6, lwd = 2)
-      }
     } else {
       # no data yet for this period/year -- placeholder panel
       plot.new()
@@ -233,6 +231,32 @@ for (i in seq_along(period_codes)) {
     }
     title(main = years[j], cex.main = 2.6, line = 0.3)
   }
+
+  # scale bar row -- a blank plot set up with the same real-world extent as
+  # the map panels (so the bar's length is computed in true map units, not
+  # arbitrary 0-1 plot units), placed as its own row beneath the panels
+  # instead of overlaid on top of one of them
+  panel_ext <- if (!is.null(crop_ext)) crop_ext else if (!is.null(ref_r)) ext(ref_r) else NULL
+  par(mar = c(0, 1, 0, 1))
+  if (!is.null(panel_ext)) {
+    # no asp=1 here: this is just a coordinate scaffold so sbar() computes
+    # the bar's length using the right x-axis scale (map units per inch) --
+    # the y-range doesn't need to preserve shape since nothing is drawn
+    # vertically, and forcing asp=1 in this short, wide row was squeezing
+    # the usable x-range down to a sliver in the middle.
+    # This row spans both grid columns (2x a single panel's width), so the
+    # x-range must also span 2x a single panel's width in map units --
+    # otherwise the meters-per-pixel scale here doesn't match the panels
+    # above and the bar renders at the wrong (roughly double) length.
+    panel_width_m <- panel_ext$xmax - panel_ext$xmin
+    plot(0, 0, type = "n", xlim = c(panel_ext$xmin, panel_ext$xmin + 2 * panel_width_m),
+         ylim = c(panel_ext$ymin, panel_ext$ymax),
+         axes = FALSE, xlab = "", ylab = "")
+  } else {
+    plot.new()
+  }
+  sbar(sbar_m, xy = "bottomleft", type = "bar", divs = 2,
+       label = c("0", "500", "1 km"), cex = 1.6, lwd = 2)
 
   # locator inset
   draw_locator_inset()

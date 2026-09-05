@@ -1,39 +1,17 @@
----
-title: "Personal"
----
-
 ## Avalanche Conditions
 
-::: {style="display:flex; align-items:center; gap:1.5em; flex-wrap:wrap;"}
-::: {style="flex:1; min-width:250px;"}
 I built a little site that pulls together live avalanche forecast, webcam, weather, and snowpack data for Cameron Pass and Hidden Valley, my two favorite areas to tour. It started out from a web-making workshop I'd attended, then I let Claude Code churn up the rest.
 
 [Open Avalanche Conditions →](avi_conditions/index.html)
-:::
-
-<img src="media/avalanche.png" alt="Avalanche Conditions site preview" style="width:160px; height:auto; border-radius:4px; flex-shrink:0;"/>
-:::
 
 ## Blog Post
 
-::: {style="display:flex; align-items:center; gap:1.5em; flex-wrap:wrap;"}
-::: {style="flex:1; min-width:250px;"}
 As a Sustainability Leadership Fellow, I was invited to write about my work using my "Prairie Wetlands in Focus: Using Satellites To Track Wetland Resources As Protections Are Fading"
 
 [CSU Sustainability Guest Post →](https://sustainability.colostate.edu/humannature/prairie-wetlands-in-focus-using-satellites-to-track-wetland-resources-as-protections-are-fading/)
-:::
-
-<img src="media/soges%20blog.png" alt="CSU SoGES guest blog post preview" style="width:160px; height:auto; border-radius:4px; flex-shrink:0;"/>
-:::
 
 ## Favorite Resources
 
-::: {style="display:flex; align-items:center; gap:1.5em; flex-wrap:wrap;"}
-::: {style="flex:1; min-width:250px;"}
 I love a list. Here are some of my favorite books, media, and papers related to prairie potholes and remote sensing, with little reviews too.
 
 [Maggie's Favorite Resources →](https://docs.google.com/document/d/1wHnwPG0bTysp0IUcZzUKgBC7GVtdWs-5-vEitzSqhxE/edit?usp=sharing)
-:::
-
-<img src="media/resources.png" alt="Favorite resources list preview" style="width:160px; height:auto; border-radius:4px; flex-shrink:0;"/>
-:::
