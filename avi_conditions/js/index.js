@@ -11,6 +11,7 @@ const LOCATIONS = {
     lon:           -105.8925,
     snotelStation: '551:CO:SNTL',
     snotelName:    'Joe Wright Reservoir',
+    snotelLatLon:  [40.53285, -105.88747],   // 10,140 ft
     webcamUrl:     'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg',
   },
   'hidden-valley': {
@@ -20,6 +21,7 @@ const LOCATIONS = {
     lon:           -105.706,
     snotelStation: '322:CO:SNTL',
     snotelName:    'Bear Lake',
+    snotelLatLon:  [40.31176, -105.6467],   // 9,490 ft
     webcamUrl:     null,
   },
   'allenspark': {
@@ -29,6 +31,7 @@ const LOCATIONS = {
     lon:           -105.5574,
     snotelStation: '1251:CO:SNTL',
     snotelName:    'Sawtooth',
+    snotelLatLon:  [40.13632, -105.58486],   // 9,640 ft
     webcamUrl:     null,
   },
 };
@@ -85,8 +88,20 @@ function cloudinarySized(url, width) {
   return url.replace(/^http:/, 'https:').replace('/image/upload/', `/image/upload/w_${width},c_limit,f_auto/`);
 }
 
-function photosHtml(product) {
-  const images = (product.media?.Images || []).filter(img => !img.isArchived);
+// Forecast + discussion photos, deduped, newest first
+function displayPhotos(products) {
+  const el = document.getElementById('caic-photos');
+  if (!el) return;
+  const seen = new Set();
+  const images = products
+    .flatMap(p => p?.media?.Images || [])
+    .filter(img => !img.isArchived && !seen.has(img.url) && seen.add(img.url))
+    .sort((a, b) => new Date(b.dateTaken || 0) - new Date(a.dateTaken || 0));
+  document.getElementById('caic-photos-container').style.display = images.length ? '' : 'none';
+  el.innerHTML = photosHtml(images);
+}
+
+function photosHtml(images) {
   if (!images.length) return '';
   const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const toText = html => { const d = document.createElement('div'); d.innerHTML = html || ''; return d.textContent.trim(); };
@@ -107,7 +122,7 @@ function photosHtml(product) {
         </figcaption>
       </figure>`;
   }).join('');
-  return `<h3>Photos</h3><div class="caic-photos">${cards}</div>`;
+  return `<div class="caic-photos">${cards}</div>`;
 }
 
 function displayDiscussion(discussion) {
@@ -119,7 +134,6 @@ function displayDiscussion(discussion) {
   el.innerHTML = `
     <p class="caic-issued">Issued ${new Date(discussion.issueDateTime).toLocaleString()}</p>
     ${discussion.message || ''}
-    ${photosHtml(discussion)}
   `;
 }
 
@@ -266,7 +280,6 @@ function displayForecastInfo(forecast) {
     ${problemsHtml}
     <h3>Summary</h3>
     ${summaryEl.innerHTML}
-    ${photosHtml(forecast)}
   `;
 }
 
@@ -387,6 +400,7 @@ function displaySnotel(data) {
 let s2Map = null;
 let s2Image = null;
 let s2Routes = null;
+let s2Snotel = null;
 let s2Manifest = null;
 
 const ROUTE_STYLE = { color: '#ff3b30', weight: 3, opacity: 0.9 };
@@ -425,8 +439,11 @@ function initSentinelMap() {
   const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17, attribution: 'Map © OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors',
   }).addTo(s2Map);
+  // Imagery gets its own pane under overlayPane so routes/markers always draw on top
+  s2Map.createPane('s2image').style.zIndex = 350;
   s2Routes = L.featureGroup().addTo(s2Map);
-  L.control.layers({ 'Topo': topo }, { 'Routes': s2Routes }, { collapsed: true }).addTo(s2Map);
+  s2Snotel = L.featureGroup().addTo(s2Map);
+  L.control.layers({ 'Topo': topo }, { 'Routes': s2Routes, 'SNOTEL': s2Snotel }, { collapsed: true }).addTo(s2Map);
 
   document.getElementById('sentinel-opacity').addEventListener('input', e => {
     if (s2Image) s2Image.setOpacity(+e.target.value);
@@ -458,6 +475,7 @@ function showScene(locKey, scene) {
   s2Image = L.imageOverlay(`data/sentinel/${scene.file}`, loc.bounds, {
     opacity: +document.getElementById('sentinel-opacity').value,
     attribution: 'Contains modified Copernicus Sentinel data',
+    pane: 's2image',
   }).addTo(s2Map);
   s2Routes.bringToFront();
   document.querySelectorAll('#sentinel-dates button').forEach(b =>
@@ -472,6 +490,13 @@ async function loadSentinel(locKey, loc) {
   if (!s2Map) initSentinelMap();
   document.getElementById('sentinel-copernicus').href = copernicusUrl(loc.lat, loc.lon);
   s2Routes.clearLayers();
+  s2Snotel.clearLayers();
+  if (loc.snotelLatLon) {
+    L.circleMarker(loc.snotelLatLon, {
+      radius: 8, color: '#5c4400', weight: 2, fillColor: '#ffd60a', fillOpacity: 1,
+    }).bindTooltip(`SNOTEL — ${loc.snotelName}`, { direction: 'top', offset: [0, -8] })
+      .addTo(s2Snotel);
+  }
   const datesEl = document.getElementById('sentinel-dates');
   datesEl.innerHTML = '';
 
@@ -483,7 +508,10 @@ async function loadSentinel(locKey, loc) {
   }
   const entry = s2Manifest?.locations?.[locKey];
   if (entry) {
-    s2Map.fitBounds(entry.bounds);
+    // Zoom out to include the SNOTEL station if it sits outside the imagery
+    const view = L.latLngBounds(entry.bounds);
+    if (loc.snotelLatLon) view.extend(loc.snotelLatLon);
+    s2Map.fitBounds(view, { paddingTopLeft: [20, 20], paddingBottomRight: [20, 50] });
   } else {
     s2Map.setView([loc.lat, loc.lon], 13);
   }
@@ -523,12 +551,16 @@ function loadLocation(loc) {
   document.getElementById('location-info').textContent = `${loc.label} · ${loc.coords}`;
 
   // CAIC
-  getCAICForecast(lat, lon)
+  const forecastP = getCAICForecast(lat, lon);
+  const discussionP = getCAICDiscussion(lat, lon);
+  forecastP
     .then(f => f ? displayForecastInfo(f) : (document.getElementById('caic-forecast').textContent = 'Forecast not available.'))
     .catch(err => { document.getElementById('caic-forecast').textContent = `Error: ${err.message}`; });
-  getCAICDiscussion(lat, lon)
+  discussionP
     .then(displayDiscussion)
     .catch(err => { document.getElementById('caic-discussion').textContent = `Error: ${err.message}`; });
+  Promise.allSettled([forecastP, discussionP])
+    .then(results => displayPhotos(results.map(r => r.value)));
 
   // Weather iframe + table + chart
   document.getElementById("forecast-caption").textContent = `7-Day Weather Forecast — ${loc.label}`;
