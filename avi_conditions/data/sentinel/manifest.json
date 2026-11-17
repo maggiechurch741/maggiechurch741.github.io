@@ -1,14 +1,14 @@
 {
-  "generated": "2026-11-17T23:16:19+00:00",
+  "generated": "2026-11-17T23:45:03+00:00",
   "locations": {
     "cameron-pass": {
       "bounds": [
         [
           40.45868,
-          -105.99595
+          -105.95749999999998
         ],
         [
-          40.57282999999999,
+          40.5708,
           -105.8275
         ]
       ],
@@ -23,14 +23,14 @@
         {
           "date": "2026-11-11",
           "file": "cameron-pass_2026-11-11.jpg",
-          "local_cloud": 0.036,
+          "local_cloud": 0.042,
           "scene_cloud": 7.899971,
           "id": "S2C_13TDE_20261111_0_L2A"
         },
         {
           "date": "2026-10-27",
           "file": "cameron-pass_2026-10-27.jpg",
-          "local_cloud": 0.113,
+          "local_cloud": 0.083,
           "scene_cloud": 53.857428,
           "id": "S2B_13TDE_20261027_0_L2A"
         }
