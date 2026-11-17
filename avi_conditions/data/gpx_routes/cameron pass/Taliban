@@ -1,0 +1,7 @@
+<gpx xmlns:onx="https://wwww.onxmaps.com/" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="onXmaps backcountry web"><metadata/><rte><name xmlns="http://www.topografix.com/GPX/1/1">Taliban</name><desc xmlns="http://www.topografix.com/GPX/1/1">name=Taliban
+notes=
+id=01M7NR6NTYKK5713K1FCA73PX5
+type=Line
+color=rgba(0,0,0,1)
+style=solid
+weight=4.0</desc><type>Line</type><extensions><onx:color>rgba(0,0,0,1)</onx:color><onx:style>solid</onx:style><onx:weight>4.0</onx:weight></extensions><rtept lat="40.51505" lon="-105.88923"/><rtept lat="40.51654" lon="-105.88889"/><rtept lat="40.51408" lon="-105.88395"/><rtept lat="40.51372" lon="-105.88373"/><rtept lat="40.51457" lon="-105.88245"/><rtept lat="40.51378" lon="-105.88091"/><rtept lat="40.5155" lon="-105.87862"/><rtept lat="40.51638" lon="-105.87666"/><rtept lat="40.51409" lon="-105.87043"/></rte></gpx>

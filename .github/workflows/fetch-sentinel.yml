@@ -1,0 +1,38 @@
+name: Fetch Sentinel-2 imagery
+
+on:
+  schedule:
+    - cron: '30 13 * * *'   # daily, ~6:30am MT (Sentinel-2 passes over CO late morning, catalog updates within hours)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    env:
+      AWS_NO_SIGN_REQUEST: 'YES'
+      GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests numpy pillow rasterio
+
+      - name: Fetch imagery
+        run: python .github/scripts/fetch_sentinel.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A avi_conditions/data/sentinel/ docs/avi_conditions/data/sentinel/
+          git diff --staged --quiet || git commit -m "chore: update sentinel imagery"
+          git pull --rebase
+          git push

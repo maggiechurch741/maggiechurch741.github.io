@@ -1,0 +1,7 @@
+<gpx xmlns:onx="https://wwww.onxmaps.com/" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="onXmaps backcountry web"><metadata/><rte><name xmlns="http://www.topografix.com/GPX/1/1">N Diamond Trees Approach</name><desc xmlns="http://www.topografix.com/GPX/1/1">name=N Diamond Trees Approach
+notes=
+id=01KGZ05CZ9CF5H0BRGE2DNC4F0
+type=Line
+color=rgba(0,0,0,1)
+style=solid
+weight=4.0</desc><type>Line</type><extensions><onx:color>rgba(0,0,0,1)</onx:color><onx:style>solid</onx:style><onx:weight>4.0</onx:weight></extensions><rtept lat="40.5205" lon="-105.89393"/><rtept lat="40.52077" lon="-105.89503"/><rtept lat="40.52067" lon="-105.89541"/><rtept lat="40.52052" lon="-105.8965"/><rtept lat="40.52029" lon="-105.89698"/><rtept lat="40.51983" lon="-105.89897"/><rtept lat="40.51852" lon="-105.90071"/><rtept lat="40.51802" lon="-105.90112"/><rtept lat="40.51818" lon="-105.90264"/><rtept lat="40.51789" lon="-105.90386"/></rte></gpx>

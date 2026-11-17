@@ -153,6 +153,52 @@ section h2 {
 }
 
 /* ── CAIC disclaimer ──────────────────────────────────────── */
+#caic-discussion p { font-size: 0.88rem; line-height: 1.5; }
+#caic-discussion h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7686;
+  margin: 1rem 0 0.5rem;
+}
+.caic-issued { font-size: 0.82rem !important; color: #9aa5b4; }
+
+/* CAIC photo strip (forecast + discussion) */
+/* Grid/flex children default to min-width:auto, which lets the scrolling
+   strip push its column wider than the screen */
+.left-column, .right-column, section { min-width: 0; }
+
+.caic-photos {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+}
+.caic-photo {
+  flex: 0 0 240px;
+  margin: 0;
+  scroll-snap-align: start;
+}
+.caic-photo img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+.caic-photo figcaption {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #4a5565;
+  margin-top: 0.35rem;
+}
+.caic-photo-meta {
+  display: block;
+  color: #9aa5b4;
+  margin-bottom: 0.15rem;
+}
+
 #caic-disclaimer {
   font-size: 0.75rem;
   color: #9aa5b4;
@@ -266,14 +312,34 @@ td img { width: 36px; border-radius: 4px; }
   color: #9aa5b4;
 }
 
-#sentinel-latest-btn {
-  margin-left: 0.5rem;
-  vertical-align: baseline;
+#sentinel-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: #6b7686;
 }
 
-#sentinel iframe {
-  width: 100%;
-  height: 420px;
-  border-radius: 6px;
-  border: none;
+#sentinel-dates { display: flex; gap: 0.35rem; }
+
+.date-button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #d5dbe3;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
+.date-button.active { background: #1f3a5f; border-color: #1f3a5f; color: #fff; }
+
+#sentinel-map {
+  width: 100%;
+  height: 480px;
+  border-radius: 6px;
+}
+#sentinel-map.dragging { outline: 3px dashed #ff3b30; outline-offset: -3px; }
+
+#sentinel .sentinel-hint { margin-top: 0.4rem; }

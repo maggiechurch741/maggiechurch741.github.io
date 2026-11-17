@@ -1,0 +1,7 @@
+<gpx xmlns:onx="https://wwww.onxmaps.com/" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="onXmaps backcountry web"><metadata/><rte><name xmlns="http://www.topografix.com/GPX/1/1">Route 11/17/26 14:55</name><desc xmlns="http://www.topografix.com/GPX/1/1">name=Route 11/17/26 14:55
+notes=
+id=01M7NR4WP1CA5ZKY5Y3KFPB83H
+type=Line
+color=rgba(0,0,0,1)
+style=solid
+weight=4.0</desc><type>Line</type><extensions><onx:color>rgba(0,0,0,1)</onx:color><onx:style>solid</onx:style><onx:weight>4.0</onx:weight></extensions><rtept lat="40.48995" lon="-105.90334"/><rtept lat="40.48917" lon="-105.90146"/><rtept lat="40.48555" lon="-105.90211"/><rtept lat="40.47585" lon="-105.90096"/><rtept lat="40.47386" lon="-105.90289"/><rtept lat="40.47068" lon="-105.90195"/></rte></gpx>

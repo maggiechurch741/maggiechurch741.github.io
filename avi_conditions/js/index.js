@@ -22,6 +22,15 @@ const LOCATIONS = {
     snotelName:    'Bear Lake',
     webcamUrl:     null,
   },
+  'allenspark': {
+    label:         'Allenspark',
+    coords:        '40.17°N 105.56°W · 10,540 ft',
+    lat:           40.1654,
+    lon:           -105.5574,
+    snotelStation: '1251:CO:SNTL',
+    snotelName:    'Sawtooth',
+    webcamUrl:     null,
+  },
 };
 
 let webcamInterval = null;
@@ -46,10 +55,9 @@ function pointInMultiPolygon(lat, lon, coordinates) {
   return coordinates.some(polygon => pointInRing(lat, lon, polygon[0]));
 }
 
-async function getCAICForecast(lat, lon) {
+async function getCAICProduct(lat, lon, zonesFile, productsFile) {
   const [zonesRes, productsRes] = await Promise.all([
-    fetch('data/caic-zones.json'),
-    fetch('data/caic-products.json')
+    fetch(zonesFile, { cache: 'no-cache' }), fetch(productsFile, { cache: 'no-cache' }),
   ]);
   if (!zonesRes.ok || !productsRes.ok) {
     throw new Error(`Data not found — run the GitHub Action first (zones ${zonesRes.status}, products ${productsRes.status})`);
@@ -61,7 +69,58 @@ async function getCAICForecast(lat, lon) {
     pointInMultiPolygon(lat, lon, f.geometry.coordinates)
   );
   if (!matchingZone) return null;
-  return products.find(p => p.areaId === matchingZone.id) || null;
+  // includeExpired=true can return older issues too — take the newest
+  return products
+    .filter(p => p.areaId === matchingZone.id)
+    .sort((x, y) => new Date(y.issueDateTime) - new Date(x.issueDateTime))[0] || null;
+}
+
+const getCAICForecast = (lat, lon) =>
+  getCAICProduct(lat, lon, 'data/caic-zones.json', 'data/caic-products.json');
+const getCAICDiscussion = (lat, lon) =>
+  getCAICProduct(lat, lon, 'data/caic-discussion-zones.json', 'data/caic-discussion-products.json');
+
+// Photo strip for a CAIC product's media.Images
+function cloudinarySized(url, width) {
+  return url.replace(/^http:/, 'https:').replace('/image/upload/', `/image/upload/w_${width},c_limit,f_auto/`);
+}
+
+function photosHtml(product) {
+  const images = (product.media?.Images || []).filter(img => !img.isArchived);
+  if (!images.length) return '';
+  const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const toText = html => { const d = document.createElement('div'); d.innerHTML = html || ''; return d.textContent.trim(); };
+  const cards = images.map(img => {
+    const caption = toText(img.caption);
+    const meta = [
+      img.dateTaken ? new Date(img.dateTaken).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+      img.credit ? `📷 ${img.credit}` : '',
+    ].filter(Boolean).join(' · ');
+    return `
+      <figure class="caic-photo">
+        <a href="${esc(cloudinarySized(img.url, 2000))}" target="_blank" rel="noopener">
+          <img src="${esc(cloudinarySized(img.url, 600))}" alt="${esc(img.altText || caption)}" loading="lazy">
+        </a>
+        <figcaption>
+          ${meta ? `<span class="caic-photo-meta">${esc(meta)}</span>` : ''}
+          ${esc(caption)}
+        </figcaption>
+      </figure>`;
+  }).join('');
+  return `<h3>Photos</h3><div class="caic-photos">${cards}</div>`;
+}
+
+function displayDiscussion(discussion) {
+  const el = document.getElementById('caic-discussion');
+  if (!el) return;
+  if (!discussion) { el.textContent = 'Discussion not available.'; return; }
+  document.querySelector('#caic-discussion-container h2').textContent =
+    discussion.publicTitle || 'CAIC Forecast Discussion';
+  el.innerHTML = `
+    <p class="caic-issued">Issued ${new Date(discussion.issueDateTime).toLocaleString()}</p>
+    ${discussion.message || ''}
+    ${photosHtml(discussion)}
+  `;
 }
 
 const DANGER_COLORS = {
@@ -207,6 +266,7 @@ function displayForecastInfo(forecast) {
     ${problemsHtml}
     <h3>Summary</h3>
     ${summaryEl.innerHTML}
+    ${photosHtml(forecast)}
   `;
 }
 
@@ -320,13 +380,136 @@ function displaySnotel(data) {
 }
 
 ///////////////////////
-// Sentinel-2 "latest date" helper — scopes the Copernicus Browser to a
-// recent window so it lands on the newest available imagery, not "today".
+// Sentinel-2 map — imagery is pre-clipped by .github/scripts/fetch_sentinel.py
+// (data/sentinel/manifest.json); routes come from data/routes/<location>.geojson
+// if present, plus any GPX/GeoJSON the viewer drops on the map.
 
-function sentinelLatestUrl(lat, lon) {
+let s2Map = null;
+let s2Image = null;
+let s2Routes = null;
+let s2Manifest = null;
+
+const ROUTE_STYLE = { color: '#ff3b30', weight: 3, opacity: 0.9 };
+
+function copernicusUrl(lat, lon) {
   const now  = new Date();
   const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   return `https://browser.dataspace.copernicus.eu/?zoom=13&lat=${lat}&lng=${lon}&themeId=DEFAULT-THEME&datasetId=S2_L2A_CDAS&fromTime=${from.toISOString()}&toTime=${now.toISOString()}`;
+}
+
+function gpxToGeoJSON(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  const toCoords = pts => [...pts].map(p => [+p.getAttribute('lon'), +p.getAttribute('lat')]);
+  const features = [];
+  doc.querySelectorAll('trkseg').forEach(seg => features.push(toCoords(seg.querySelectorAll('trkpt'))));
+  doc.querySelectorAll('rte').forEach(rte => features.push(toCoords(rte.querySelectorAll('rtept'))));
+  return {
+    type: 'FeatureCollection',
+    features: features.filter(c => c.length > 1).map(c => ({
+      type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: c },
+    })),
+  };
+}
+
+function addRoutes(geojson) {
+  const layer = L.geoJSON(geojson, {
+    style: ROUTE_STYLE,
+    onEachFeature: (f, l) => f.properties?.name && l.bindTooltip(f.properties.name),
+  });
+  layer.addTo(s2Routes);
+  return layer;
+}
+
+function initSentinelMap() {
+  s2Map = L.map('sentinel-map', { zoomSnap: 0.25 });
+  const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17, attribution: 'Map © OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors',
+  }).addTo(s2Map);
+  s2Routes = L.featureGroup().addTo(s2Map);
+  L.control.layers({ 'Topo': topo }, { 'Routes': s2Routes }, { collapsed: true }).addTo(s2Map);
+
+  document.getElementById('sentinel-opacity').addEventListener('input', e => {
+    if (s2Image) s2Image.setOpacity(+e.target.value);
+  });
+
+  // Drag-and-drop GPX / GeoJSON
+  const el = document.getElementById('sentinel-map');
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragging'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragging'));
+  el.addEventListener('drop', async e => {
+    e.preventDefault();
+    el.classList.remove('dragging');
+    for (const file of e.dataTransfer.files) {
+      const text = await file.text();
+      try {
+        const gj = /\.gpx$/i.test(file.name) ? gpxToGeoJSON(text) : JSON.parse(text);
+        const layer = addRoutes(gj);
+        if (layer.getLayers().length) s2Map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+      } catch (err) {
+        alert(`Couldn't read ${file.name}: ${err.message}`);
+      }
+    }
+  });
+}
+
+function showScene(locKey, scene) {
+  const loc = s2Manifest.locations[locKey];
+  if (s2Image) s2Map.removeLayer(s2Image);
+  s2Image = L.imageOverlay(`data/sentinel/${scene.file}`, loc.bounds, {
+    opacity: +document.getElementById('sentinel-opacity').value,
+    attribution: 'Contains modified Copernicus Sentinel data',
+  }).addTo(s2Map);
+  s2Routes.bringToFront();
+  document.querySelectorAll('#sentinel-dates button').forEach(b =>
+    b.classList.toggle('active', b.dataset.date === scene.date));
+  const daysAgo = Math.round((Date.now() - new Date(scene.date + 'T18:00:00Z')) / 864e5);
+  document.getElementById('sentinel-meta').textContent =
+    `${scene.date} (${daysAgo} day${daysAgo === 1 ? '' : 's'} ago) · ${Math.round(scene.local_cloud * 100)}% cloud in view` +
+    (scene.local_cloud > 0.25 ? ' — no clearer recent pass' : '');
+}
+
+async function loadSentinel(locKey, loc) {
+  if (!s2Map) initSentinelMap();
+  document.getElementById('sentinel-copernicus').href = copernicusUrl(loc.lat, loc.lon);
+  s2Routes.clearLayers();
+  const datesEl = document.getElementById('sentinel-dates');
+  datesEl.innerHTML = '';
+
+  if (!s2Manifest) {
+    try {
+      const r = await fetch('data/sentinel/manifest.json');
+      s2Manifest = r.ok ? await r.json() : null;
+    } catch { s2Manifest = null; }
+  }
+  const entry = s2Manifest?.locations?.[locKey];
+  if (entry) {
+    s2Map.fitBounds(entry.bounds);
+  } else {
+    s2Map.setView([loc.lat, loc.lon], 13);
+  }
+  if (!entry || !entry.scenes.length) {
+    if (s2Image) { s2Map.removeLayer(s2Image); s2Image = null; }
+    document.getElementById('sentinel-meta').textContent = s2Manifest
+      ? 'No Sentinel-2 imagery found for this location in the last 45 days.'
+      : 'Imagery not fetched yet — run the "Fetch Sentinel-2 imagery" GitHub Action.';
+  } else {
+    entry.scenes.forEach(scene => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'date-button';
+      b.dataset.date = scene.date;
+      b.textContent = scene.date.slice(5);
+      b.onclick = () => showScene(locKey, scene);
+      datesEl.appendChild(b);
+    });
+    showScene(locKey, entry.scenes[0]);
+  }
+
+  // Saved routes for this location (optional file)
+  fetch(`data/routes/${locKey}.geojson`)
+    .then(r => (r.ok ? r.json() : null))
+    .then(gj => gj && addRoutes(gj))
+    .catch(() => {});
 }
 
 ///////////////////////
@@ -343,12 +526,21 @@ function loadLocation(loc) {
   getCAICForecast(lat, lon)
     .then(f => f ? displayForecastInfo(f) : (document.getElementById('caic-forecast').textContent = 'Forecast not available.'))
     .catch(err => { document.getElementById('caic-forecast').textContent = `Error: ${err.message}`; });
+  getCAICDiscussion(lat, lon)
+    .then(displayDiscussion)
+    .catch(err => { document.getElementById('caic-discussion').textContent = `Error: ${err.message}`; });
 
   // Weather iframe + table + chart
   document.getElementById("forecast-caption").textContent = `7-Day Weather Forecast — ${loc.label}`;
 
   const iframe = document.getElementById("forecast-frame");
-  if (iframe) iframe.src = `https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}&unit=0&lg=english&FcstType=graphical`;
+  if (iframe) {
+    // Cross-origin iframe can't be scrolled directly, so it renders at full
+    // height inside a scroll box; start the box at the graph (~570px down).
+    const box = document.getElementById("forecast-scroll");
+    iframe.onload = () => { if (box) box.scrollTop = 570; };
+    iframe.src = `https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}&unit=0&lg=english&FcstType=graphical`;
+  }
 
   get_weather_forcast(lat, lon).then(data => {
     const tbody = document.querySelector('#forecast tbody');
@@ -367,17 +559,9 @@ function loadLocation(loc) {
     }
   });
 
-  // Sentinel — default to a 30-day lookback so the viewer opens on the
-  // most recent available pass instead of "today" (which usually has none,
-  // since Sentinel-2 only revisits every ~5 days).
-  const s2Frame = document.getElementById("sentinel-frame");
-  const sentinelBtn = document.getElementById("sentinel-latest-btn");
-  if (s2Frame) s2Frame.src = sentinelLatestUrl(lat, lon);
-  if (sentinelBtn) {
-    sentinelBtn.onclick = () => {
-      if (s2Frame) s2Frame.src = sentinelLatestUrl(lat, lon);
-    };
-  }
+  // Sentinel-2 map
+  const locKey = Object.keys(LOCATIONS).find(k => LOCATIONS[k] === loc);
+  loadSentinel(locKey, loc);
 
   // Webcam
   setupWebcam(lat, lon, webcamUrl);
@@ -396,10 +580,10 @@ document.querySelector("h1").textContent = "Avalanche Conditions";
 ///////////////////////
 // Weather tab switching (Chart / Table)
 
-document.querySelectorAll('.tab-button').forEach(button => {
+document.querySelectorAll('.tabs .tab-button').forEach(button => {
   button.addEventListener('click', () => {
     const target = button.dataset.tab;
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tabs .tab-button').forEach(b => b.classList.remove('active'));
     button.classList.add('active');
     document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === target);

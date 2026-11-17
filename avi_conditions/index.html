@@ -8,6 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/index.js"></script>
 </head>
 <body>
@@ -35,6 +37,11 @@
         <p id="caic-disclaimer">⚠️ This site was made by an amateur — always confirm with the <a href="https://avalanche.state.co.us" target="_blank">official CAIC forecast</a>.</p>
     </section>
 
+    <section id="caic-discussion-container">
+        <h2>CAIC Forecast Discussion</h2>
+        <div id="caic-discussion"></div>
+    </section>
+
     <section id="webcam">
       <h2>Live Webcam Near Cameron Pass</h2>
       <img
@@ -50,14 +57,16 @@
   <div class="right-column">
     <section id="chart-container">
       <div class="tabs">
-        <button class="tab-button" data-tab="forcast_chart">Chart</button>
-        <button class="tab-button active" data-tab="forcast_table">Table</button>
+        <button class="tab-button active" data-tab="forcast_chart">Chart</button>
+        <button class="tab-button" data-tab="forcast_table">Table</button>
       </div>
       <div class="tab-content">
-        <div id="forcast_chart" class="tab-panel">
-          <iframe id="forecast-frame" width="100%" height="600" style="border:none;"></iframe>
+        <div id="forcast_chart" class="tab-panel active">
+          <div id="forecast-scroll" style="height:600px; overflow:auto;">
+            <iframe id="forecast-frame" width="100%" height="2100" scrolling="no" style="border:none; display:block;"></iframe>
           </div>
-        <div id="forcast_table" class="tab-panel active">
+          </div>
+        <div id="forcast_table" class="tab-panel">
           <table id="forecast">
             <caption id="forecast-caption">7-Day Weather Forecast</caption>
             <thead>
@@ -76,15 +85,14 @@
     <!-- Sentinel-2 below weather -->
     <section id="sentinel">
       <h2>Latest Sentinel-2 Imagery</h2>
-      <p>Sentinel-2 imagery for this location, most recent cloud-permitting pass.
-        <button id="sentinel-latest-btn" type="button" class="tab-button">Show Latest Date</button>
-      </p>
-      <iframe
-        id="sentinel-frame"
-        width="100%"
-        height="400"
-        style="border:none;">
-      </iframe>
+      <p id="sentinel-meta">Loading imagery…</p>
+      <div id="sentinel-controls">
+        <div id="sentinel-dates"></div>
+        <label>Opacity <input id="sentinel-opacity" type="range" min="0" max="1" step="0.05" value="1"></label>
+      </div>
+      <div id="sentinel-map"></div>
+      <p class="sentinel-hint">Drop a GPX or GeoJSON route on the map to overlay it ·
+        <a id="sentinel-copernicus" target="_blank">open in Copernicus Browser</a></p>
     </section>
   </div>
 

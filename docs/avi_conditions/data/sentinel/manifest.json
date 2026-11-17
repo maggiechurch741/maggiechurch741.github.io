@@ -1,0 +1,110 @@
+{
+  "generated": "2026-11-17T23:16:19+00:00",
+  "locations": {
+    "cameron-pass": {
+      "bounds": [
+        [
+          40.45868,
+          -105.99595
+        ],
+        [
+          40.57282999999999,
+          -105.8275
+        ]
+      ],
+      "scenes": [
+        {
+          "date": "2026-11-16",
+          "file": "cameron-pass_2026-11-16.jpg",
+          "local_cloud": 0.0,
+          "scene_cloud": 0.224356,
+          "id": "S2B_13TDE_20261116_0_L2A"
+        },
+        {
+          "date": "2026-11-11",
+          "file": "cameron-pass_2026-11-11.jpg",
+          "local_cloud": 0.036,
+          "scene_cloud": 7.899971,
+          "id": "S2C_13TDE_20261111_0_L2A"
+        },
+        {
+          "date": "2026-10-27",
+          "file": "cameron-pass_2026-10-27.jpg",
+          "local_cloud": 0.113,
+          "scene_cloud": 53.857428,
+          "id": "S2B_13TDE_20261027_0_L2A"
+        }
+      ]
+    },
+    "hidden-valley": {
+      "bounds": [
+        [
+          40.348,
+          -105.77100000000002
+        ],
+        [
+          40.448,
+          -105.641
+        ]
+      ],
+      "scenes": [
+        {
+          "date": "2026-11-16",
+          "file": "hidden-valley_2026-11-16.jpg",
+          "local_cloud": 0.0,
+          "scene_cloud": 0.224356,
+          "id": "S2B_13TDE_20261116_0_L2A"
+        },
+        {
+          "date": "2026-11-11",
+          "file": "hidden-valley_2026-11-11.jpg",
+          "local_cloud": 0.011,
+          "scene_cloud": 7.899971,
+          "id": "S2C_13TDE_20261111_0_L2A"
+        },
+        {
+          "date": "2026-10-27",
+          "file": "hidden-valley_2026-10-27.jpg",
+          "local_cloud": 0.135,
+          "scene_cloud": 53.857428,
+          "id": "S2B_13TDE_20261027_0_L2A"
+        }
+      ]
+    },
+    "allenspark": {
+      "bounds": [
+        [
+          40.115399999999994,
+          -105.62240000000001
+        ],
+        [
+          40.2154,
+          -105.49239999999999
+        ]
+      ],
+      "scenes": [
+        {
+          "date": "2026-11-16",
+          "file": "allenspark_2026-11-16.jpg",
+          "local_cloud": 0.0,
+          "scene_cloud": 0.224356,
+          "id": "S2B_13TDE_20261116_0_L2A"
+        },
+        {
+          "date": "2026-11-11",
+          "file": "allenspark_2026-11-11.jpg",
+          "local_cloud": 0.097,
+          "scene_cloud": 7.899971,
+          "id": "S2C_13TDE_20261111_0_L2A"
+        },
+        {
+          "date": "2026-10-17",
+          "file": "allenspark_2026-10-17.jpg",
+          "local_cloud": 0.0,
+          "scene_cloud": 0.006032,
+          "id": "S2B_13TDE_20261017_0_L2A"
+        }
+      ]
+    }
+  }
+}
