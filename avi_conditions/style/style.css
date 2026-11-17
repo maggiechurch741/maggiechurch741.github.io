@@ -90,6 +90,19 @@ header h1 {
   }
 }
 
+/* Phone: flatten the two columns into one list and reorder:
+   snow depth → imagery → webcam → weather → CAIC */
+@media (max-width: 899px) {
+  .left-column, .right-column { display: contents; }
+  #snotel-container          { order: 1; }
+  #sentinel                  { order: 2; }
+  #webcam                    { order: 3; }
+  #chart-container           { order: 4; }
+  #caic-container            { order: 10; }
+  #caic-discussion-container { order: 11; }
+  #caic-photos-container     { order: 12; }
+}
+
 /* ── Cards ────────────────────────────────────────────────── */
 section {
   background: white;
