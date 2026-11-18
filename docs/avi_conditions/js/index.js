@@ -444,10 +444,27 @@ function setupWebcam(key, lat, lon, webcams) {
 ///////////////////////
 // SNOTEL
 
+const AWDB = 'https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data';
+
+// Last ~3 days of hourly snow depth, live from NRCS AWDB (CORS-open, no key).
+// Times are station local standard time, "YYYY-MM-DD HH:MM".
+async function getHourlyDepth(station) {
+  const fmt = d => d.toISOString().slice(0, 10);
+  const end = new Date(Date.now() + 864e5), begin = new Date(Date.now() - 3 * 864e5);
+  const url = `${AWDB}?stationTriplets=${station}&elements=SNWD&duration=HOURLY` +
+              `&beginDate=${fmt(begin)}%2000:00&endDate=${fmt(end)}%2000:00`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.status);
+  return ((await res.json())[0]?.data?.[0]?.values || []).filter(v => v.value != null);
+}
+
 async function getSnotelData(station) {
   const id = station.split(':')[0];
-  const res = await fetch(`data/snotel-${id}.json`);
-  return { snowDepth: await res.json() };
+  const [daily, hourly] = await Promise.all([
+    fetch(`data/snotel-${id}.json`, { cache: 'no-cache' }).then(r => r.json()),
+    getHourlyDepth(station).catch(() => null),   // fall back to daily values
+  ]);
+  return { snowDepth: daily, hourly };
 }
 
 let snotelChart;
@@ -459,18 +476,41 @@ function displaySnotel(data) {
   const depthValues = data.snowDepth[0].data[0].values;
   const vals = depthValues.map(v => v.value);
 
-  const currentDepth = vals[vals.length - 1];
-  const snow24 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 2]);
-  const snow48 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 3]);
+  let currentDepth = vals[vals.length - 1];
+  let snow24 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 2]);
+  let snow48 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 3]);
+  let asOf = `Daily value from ${depthValues[depthValues.length - 1].date}`;
+
+  // Prefer the live hourly reading; 24h/48h compare against the same hour earlier
+  const hourly = data.hourly;
+  if (hourly?.length) {
+    const t = v => new Date(v.date.replace(' ', 'T')).getTime();   // same-zone strings, so diffs are exact
+    const last = hourly[hourly.length - 1];
+    const back = hrs => hourly.find(v => t(v) === t(last) - hrs * 3600e3);
+    currentDepth = last.value;
+    const d24 = back(24), d48 = back(48);
+    if (d24) snow24 = Math.max(0, last.value - d24.value);
+    if (d48) snow48 = Math.max(0, last.value - d48.value);
+    const [day, hm] = last.date.split(' ');
+    const [hh, mm] = hm.split(':').map(Number);
+    const clock = `${(hh % 12) || 12}${mm ? ':' + String(mm).padStart(2, '0') : ''}${hh < 12 ? 'am' : 'pm'}`;
+    const today = new Date().toLocaleDateString('en-CA');
+    asOf = day === today ? `today ${clock}` : `${day} ${clock}`;
+  }
 
   container.innerHTML = `
     <p><strong>Current Snow Depth:</strong> ${currentDepth} in</p>
     <p><strong>New Snow (24h):</strong> ${snow24} in</p>
     <p><strong>New Snow (48h):</strong> ${snow48} in</p>
+    <div class="snotel-asof">${asOf}</div>
   `;
 
-  const dates = depthValues.map(v =>
-    new Date(v.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  // Chart the current snow season from Oct 1
+  const now = new Date();
+  const seasonStart = `${now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1}-10-01`;
+  const season = depthValues.filter(v => v.date.slice(0, 10) >= seasonStart);
+  const dates = season.map(v =>
+    new Date(v.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   );
 
   if (snotelChart) snotelChart.destroy();
@@ -480,7 +520,7 @@ function displaySnotel(data) {
       labels: dates,
       datasets: [{
         label: "Snow Depth (in)",
-        data: vals,
+        data: season.map(v => v.value),
         borderColor: "steelblue",
         backgroundColor: "rgba(70,130,180,0.15)",
         fill: true,

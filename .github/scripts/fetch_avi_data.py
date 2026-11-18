@@ -24,8 +24,10 @@ for name, path in [
     print(f"Fetched {name}")
 
 SNOTEL_BASE = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
-end   = datetime.now().strftime("%Y-%m-%d")
-begin = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+now   = datetime.now()
+end   = now.strftime("%Y-%m-%d")
+# Start of the snow/water year (Oct 1) so the chart covers the whole season
+begin = f"{now.year if now.month >= 10 else now.year - 1}-10-01"
 
 for station in ["551:CO:SNTL", "322:CO:SNTL", "1251:CO:SNTL"]:
     station_id = station.split(':')[0]
