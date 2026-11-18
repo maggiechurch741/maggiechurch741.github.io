@@ -48,12 +48,9 @@
     </section>
 
     <section id="webcam">
-      <h2>Live Webcam Near Cameron Pass</h2>
-      <img
-        id="cameron-webcam"
-        src="https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg"
-        alt="Live webcam"
-      />
+      <h2>Webcam Near Cameron Pass</h2>
+      <div id="road-conditions"></div>
+      <div id="webcam-strip"></div>
       <p id="webcam-time"></p>
     </section>
   </div>
@@ -67,8 +64,10 @@
       </div>
       <div class="tab-content">
         <div id="forcast_chart" class="tab-panel active">
-          <div id="forecast-scroll" style="height:600px; overflow:auto;">
-            <iframe id="forecast-frame" width="100%" height="2100" scrolling="no" style="border:none; display:block;"></iframe>
+          <div id="forecast-scroll" style="height:600px; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;">
+            <!-- weather.gov's page is 962px wide; give the iframe that width so the
+                 outer box (not the cross-origin iframe) scrolls sideways -->
+            <iframe id="forecast-frame" width="962" height="2100" scrolling="no" style="border:none; display:block; width:962px; max-width:none;"></iframe>
           </div>
           </div>
         <div id="forcast_table" class="tab-panel">

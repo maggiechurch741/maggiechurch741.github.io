@@ -1,0 +1,47 @@
+name: Capture dusk webcam frame
+
+on:
+  schedule:
+    # Every 10 min, 22:00–02:59 UTC: covers sunset-30min in Colorado year-round
+    # (~16:05 MST in Dec to ~20:00 MDT in Jun). The script only saves once/day.
+    - cron: '*/10 22,23,0,1,2 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Capture now, ignoring the sunset window'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capture-webcam
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests astral
+
+      - name: Capture
+        run: python .github/scripts/capture_webcam.py ${{ inputs.force && '--force' || '' }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add avi_conditions/data/webcam/ docs/avi_conditions/data/webcam/
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: dusk webcam frame"
+          git pull --rebase
+          git push

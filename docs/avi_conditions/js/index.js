@@ -12,7 +12,12 @@ const LOCATIONS = {
     snotelStation: '551:CO:SNTL',
     snotelName:    'Joe Wright Reservoir',
     snotelLatLon:  [40.53285, -105.88747],   // 10,140 ft
-    webcamUrl:     'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg',
+    webcams: [   // same CDOT camera, two directions; keep in sync with capture_webcam.py
+      { id: 'west', label: 'Looking west', url: 'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg' },
+      { id: 'east', label: 'Looking east', url: 'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-E.jpg' },
+    ],
+    // COtrip road-condition segments (id from the cotrip.org/events/<id> URL)
+    roadSegments:  ['COSEG-587999'],   // CO 14 over Cameron Pass
   },
   'hidden-valley': {
     label:         'Hidden Valley',
@@ -22,7 +27,7 @@ const LOCATIONS = {
     snotelStation: '322:CO:SNTL',
     snotelName:    'Bear Lake',
     snotelLatLon:  [40.31176, -105.6467],   // 9,490 ft
-    webcamUrl:     null,
+    webcams:       [],
   },
   'allenspark': {
     label:         'Allenspark',
@@ -32,7 +37,7 @@ const LOCATIONS = {
     snotelStation: '1251:CO:SNTL',
     snotelName:    'Sawtooth',
     snotelLatLon:  [40.13632, -105.58486],   // 9,640 ft
-    webcamUrl:     null,
+    webcams:       [],
   },
 };
 
@@ -297,41 +302,142 @@ async function get_weather_forcast(lat, lon) {
 ///////////////////////
 // Webcam
 
-function setupWebcam(lat, lon, webcamUrl) {
-  // Clear any existing refresh
-  if (webcamInterval)     clearInterval(webcamInterval);
+///////////////////////
+// Road conditions — live from COtrip's public 511 API (CORS-open, no key)
+
+let roadInterval = null;
+const COTRIP_EVENT = id => `https://api-511x-co.carsprogram.org/events/events/${id}?eventClassifications=winterDriving`;
+
+const ROAD_ICONS = {
+  snow: '<path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17M9 4l3 2 3-2M9 20l3-2 3 2M4 10.5l1-3.5-3.5-1M20 13.5l-1 3.5 3.5 1M4 13.5l1 3.5-3.5 1M20 10.5l-1-3.5 3.5-1"/>',
+  road: '<path d="M8 2L4 22M16 2l4 20M12 4v3M12 10.5v3M12 17v3"/>',
+};
+
+function timeAgo(ms) {
+  const min = Math.round((Date.now() - ms) / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return `${min} minute${min === 1 ? '' : 's'} ago`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`;
+  const d = Math.round(h / 24);
+  return `${d} day${d === 1 ? '' : 's'} ago`;
+}
+
+async function setupRoadConditions(segments) {
+  if (roadInterval) clearInterval(roadInterval);
+  const el = document.getElementById('road-conditions');
+  if (!el) return;
+  if (!segments?.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  async function refresh() {
+    const rows = await Promise.all(segments.map(async id => {
+      try {
+        const res = await fetch(COTRIP_EVENT(id));
+        if (!res.ok) throw new Error(res.status);
+        const p = (await res.json()).properties;
+        const r = p.eventReport || {};
+        const desc = r.eventDescription || {};
+        const agency = r.agencyAttribution || {};
+        const isSnow = /snow|ice|icy/i.test(`${p.icon} ${desc.headlinePhrase}`);
+        return `
+          <div class="road-row">
+            <svg class="road-icon" viewBox="0 0 24 24" style="color:${esc(p.iconColor || '#1c7ee2')}"
+                 fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+              ${isSnow ? ROAD_ICONS.snow : ROAD_ICONS.road}
+            </svg>
+            <div>
+              <a class="road-headline" href="https://www.cotrip.org/events/${esc(id)}" target="_blank" rel="noopener">
+                ${esc(desc.headlinePhrase || p.title || 'Road report')}</a>
+              <div class="road-meta">${esc(p.route || '')}${desc.descriptionBrief ? ` · ${esc(desc.descriptionBrief)}` : ''}</div>
+              <div class="road-meta">Updated ${timeAgo(p.updated)} by
+                <a href="${esc(agency.agencyURL || 'https://www.codot.gov/')}" target="_blank" rel="noopener">${esc(agency.agencyName || p.agency || 'CDOT')}</a></div>
+            </div>
+          </div>`;
+      } catch {
+        return `<div class="road-row road-meta">No current road report — <a href="https://www.cotrip.org/events/${esc(id)}" target="_blank" rel="noopener">check COtrip</a></div>`;
+      }
+    }));
+    el.innerHTML = rows.join('');
+  }
+  await refresh();
+  roadInterval = setInterval(refresh, 5 * 60_000);
+}
+
+// Live webcam by day; from 30 min before sunset until sunrise show the dusk
+// frame saved by .github/scripts/capture_webcam.py (the live image is black).
+const DUSK_LEAD_MS = 30 * 60 * 1000;
+
+function setupWebcam(key, lat, lon, webcams) {
+  if (webcamInterval)      clearInterval(webcamInterval);
   if (webcamSunsetTimeout) clearTimeout(webcamSunsetTimeout);
 
-  const webcam     = document.getElementById("cameron-webcam");
+  const strip      = document.getElementById("webcam-strip");
   const webcamTime = document.getElementById("webcam-time");
-  const section    = document.getElementById("webcam");
+  const section    = document.getElementById('webcam');
 
-  const webcamSection = document.getElementById('webcam');
-  if (!webcamUrl) {
-    webcamSection.style.display = 'none';
+  if (!webcams?.length) {
+    section.style.display = 'none';
     return;
   }
+  section.style.display = '';
+  strip.innerHTML = webcams.map(cam => `
+    <figure class="webcam-view">
+      <img data-cam="${cam.id}" alt="Webcam ${cam.label.toLowerCase()}">
+      <figcaption>${cam.label}</figcaption>
+    </figure>`).join('');
+  const imgFor = cam => strip.querySelector(`img[data-cam="${cam.id}"]`);
 
-  webcamSection.style.display = '';
-  webcam.style.display = '';
-  const sunset = SunCalc.getTimes(new Date(), lat, lon).sunset;
-  const now    = new Date();
+  const now      = new Date();
+  const today    = SunCalc.getTimes(now, lat, lon);
+  const pinStart = new Date(today.sunset - DUSK_LEAD_MS);
+  const fmtTime  = d => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  // Re-run setup at the next switch point (pinStart by day, sunrise by night)
+  const rerunAt = when => {
+    webcamSunsetTimeout = setTimeout(() => setupWebcam(key, lat, lon, webcams), when - Date.now());
+  };
 
-  function refreshWebcam() {
-    webcam.src = `${webcamUrl}?t=${Date.now()}`;
-    webcamTime.textContent = `Webcam fetched at ${new Date().toLocaleTimeString()}`;
+  function showLive(note = '') {
+    const refresh = () => {
+      webcams.forEach(cam => { imgFor(cam).src = `${cam.url}?t=${Date.now()}`; });
+      webcamTime.textContent = `Live · fetched at ${fmtTime(new Date())}${note}`;
+    };
+    refresh();
+    webcamInterval = setInterval(refresh, 60_000);
   }
 
-  refreshWebcam();
+  async function showDusk(nextSunrise) {
+    try {
+      const res = await fetch(`data/webcam/${key}-dusk.json`, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(res.status);
+      const meta = await res.json();
+      const captured = new Date(meta.captured);
+      // Must be this evening's frame (or last evening's, if it's before sunrise)
+      if (now - captured > 18 * 3600 * 1000 || captured > now) throw new Error('stale');
+      webcams.forEach(cam => {
+        imgFor(cam).src = meta.views?.includes(cam.id)
+          ? `data/webcam/${key}-${cam.id}-dusk.jpg?v=${encodeURIComponent(meta.captured)}`
+          : `${cam.url}?t=${Date.now()}`;
+      });
+      const day = captured.toDateString() === now.toDateString() ? 'today' : 'yesterday';
+      webcamTime.textContent =
+        `Pinned: ${day} at ${fmtTime(captured)} (before sunset) · live again at sunrise, ${fmtTime(nextSunrise)}`;
+    } catch {
+      showLive(' · no dusk snapshot yet');
+    }
+  }
 
-  if (now < sunset) {
-    webcamInterval = setInterval(refreshWebcam, 60_000);
-    webcamSunsetTimeout = setTimeout(() => {
-      clearInterval(webcamInterval);
-      webcamTime.textContent += " (frozen at sunset)";
-    }, sunset - now);
-  } else {
-    webcamTime.textContent += " (frozen at sunset)";
+  if (now < today.sunrise) {                    // before dawn
+    showDusk(today.sunrise);
+    rerunAt(today.sunrise);
+  } else if (now >= pinStart) {                 // evening / night
+    const tomorrow = SunCalc.getTimes(new Date(now.getTime() + 864e5), lat, lon);
+    showDusk(tomorrow.sunrise);
+    rerunAt(tomorrow.sunrise);
+  } else {                                      // daytime
+    showLive();
+    rerunAt(pinStart);
   }
 }
 
@@ -479,10 +585,11 @@ function showScene(locKey, scene) {
   }).addTo(s2Map);
   s2Routes.bringToFront();
   document.querySelectorAll('#sentinel-dates button').forEach(b =>
-    b.classList.toggle('active', b.dataset.date === scene.date));
+    b.classList.toggle('active', b.dataset.file === scene.file));
   const daysAgo = Math.round((Date.now() - new Date(scene.date + 'T18:00:00Z')) / 864e5);
   document.getElementById('sentinel-meta').textContent =
-    `${scene.date} (${daysAgo} day${daysAgo === 1 ? '' : 's'} ago) · ${Math.round(scene.local_cloud * 100)}% cloud in view` +
+    `${scene.date} (${daysAgo} day${daysAgo === 1 ? '' : 's'} ago) · ${scene.platform || 'Sentinel-2'} · ` +
+    `${Math.round(scene.local_cloud * 100)}% cloud in view` +
     (scene.local_cloud > 0.25 ? ' — no clearer recent pass' : '');
 }
 
@@ -502,7 +609,7 @@ async function loadSentinel(locKey, loc) {
 
   if (!s2Manifest) {
     try {
-      const r = await fetch('data/sentinel/manifest.json');
+      const r = await fetch('data/sentinel/manifest.json', { cache: 'no-cache' });
       s2Manifest = r.ok ? await r.json() : null;
     } catch { s2Manifest = null; }
   }
@@ -525,8 +632,9 @@ async function loadSentinel(locKey, loc) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'date-button';
-      b.dataset.date = scene.date;
+      b.dataset.file = scene.file;
       b.textContent = scene.date.slice(5);
+      b.title = scene.platform || 'Sentinel-2';
       b.onclick = () => showScene(locKey, scene);
       datesEl.appendChild(b);
     });
@@ -544,7 +652,7 @@ async function loadSentinel(locKey, loc) {
 // Load a location
 
 function loadLocation(loc) {
-  const { lat, lon, snotelStation, snotelName, webcamUrl } = loc;
+  const { lat, lon, snotelStation, snotelName, webcams } = loc;
 
   // Update SNOTEL heading
   document.querySelector('#snotel-container h2').textContent = `SNOTEL — ${snotelName}`;
@@ -596,7 +704,8 @@ function loadLocation(loc) {
   loadSentinel(locKey, loc);
 
   // Webcam
-  setupWebcam(lat, lon, webcamUrl);
+  setupWebcam(locKey, lat, lon, webcams);
+  setupRoadConditions(loc.roadSegments);
 
   // SNOTEL
   getSnotelData(snotelStation)
