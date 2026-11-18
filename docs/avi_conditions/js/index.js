@@ -12,6 +12,8 @@ const LOCATIONS = {
     snotelStation: '551:CO:SNTL',
     snotelName:    'Joe Wright Reservoir',
     snotelLatLon:  [40.53285, -105.88747],   // 10,140 ft
+    // Elevation from NRCS; slope/aspect computed from USGS 3DEP (30 m window) — NRCS doesn't publish them
+    snotelSite:    { elevFt: 10140, aspect: 'WNW', slope: 6 },
     webcams: [   // same CDOT camera, two directions; keep in sync with capture_webcam.py
       { id: 'west', label: 'Looking west', url: 'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-W.jpg' },
       { id: 'east', label: 'Looking east', url: 'https://cocam.carsprogram.org/Cellular/001E00000CAM2POR-E.jpg' },
@@ -27,6 +29,7 @@ const LOCATIONS = {
     snotelStation: '322:CO:SNTL',
     snotelName:    'Bear Lake',
     snotelLatLon:  [40.31176, -105.6467],   // 9,490 ft
+    snotelSite:    { elevFt: 9490, aspect: 'ENE', slope: 9 },
     webcams:       [],
   },
   'allenspark': {
@@ -37,6 +40,7 @@ const LOCATIONS = {
     snotelStation: '1251:CO:SNTL',
     snotelName:    'Sawtooth',
     snotelLatLon:  [40.13632, -105.58486],   // 9,640 ft
+    snotelSite:    { elevFt: 9640, aspect: 'NNE', slope: 10 },
     webcams:       [],
   },
 };
@@ -447,7 +451,10 @@ function setupWebcam(key, lat, lon, webcams) {
 const AWDB = 'https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data';
 
 // Last ~3 days of hourly snow depth, live from NRCS AWDB (CORS-open, no key).
-// Times are station local standard time, "YYYY-MM-DD HH:MM".
+// Times are "YYYY-MM-DD HH:MM" in the station's data time zone, which for
+// SNOTEL is UTC-8 year-round (dataTimeZone: -8 in the station metadata).
+const SNOTEL_TZ = '-08:00';
+
 async function getHourlyDepth(station) {
   const fmt = d => d.toISOString().slice(0, 10);
   const end = new Date(Date.now() + 864e5), begin = new Date(Date.now() - 3 * 864e5);
@@ -458,18 +465,30 @@ async function getHourlyDepth(station) {
   return ((await res.json())[0]?.data?.[0]?.values || []).filter(v => v.value != null);
 }
 
-async function getSnotelData(station) {
+// Each tab switch bumps this; responses for an older tab are dropped, so a
+// slow request can't overwrite the station you're looking at now.
+let snotelRequest = 0;
+
+async function loadSnotel(station) {
+  const my = ++snotelRequest;
   const id = station.split(':')[0];
-  const [daily, hourly] = await Promise.all([
-    fetch(`data/snotel-${id}.json`, { cache: 'no-cache' }).then(r => r.json()),
-    getHourlyDepth(station).catch(() => null),   // fall back to daily values
-  ]);
-  return { snowDepth: daily, hourly };
+  const el = document.getElementById('snotel');
+  el.innerHTML = '<p class="snotel-asof">Loading…</p>';
+
+  // 1) daily file (fast, same origin): numbers + chart right away
+  const daily = await fetch(`data/snotel-${id}.json`, { cache: 'no-cache' }).then(r => r.json());
+  if (my !== snotelRequest) return;
+  displaySnotel({ snowDepth: daily, hourly: null });
+
+  // 2) live hourly reading (slower, NRCS): refine the numbers when it arrives
+  const hourly = await getHourlyDepth(station).catch(() => null);
+  if (my !== snotelRequest || !hourly?.length) return;
+  displaySnotel({ snowDepth: daily, hourly }, { numbersOnly: true });
 }
 
 let snotelChart;
 
-function displaySnotel(data) {
+function displaySnotel(data, { numbersOnly = false } = {}) {
   const container = document.getElementById("snotel");
   if (!container) return;
 
@@ -479,23 +498,26 @@ function displaySnotel(data) {
   let currentDepth = vals[vals.length - 1];
   let snow24 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 2]);
   let snow48 = Math.max(0, vals[vals.length - 1] - vals[vals.length - 3]);
-  let asOf = `Daily value from ${depthValues[depthValues.length - 1].date}`;
+  let asOf = `${new Date(depthValues[depthValues.length - 1].date + 'T12:00')
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} (daily)`;
 
   // Prefer the live hourly reading; 24h/48h compare against the same hour earlier
   const hourly = data.hourly;
   if (hourly?.length) {
-    const t = v => new Date(v.date.replace(' ', 'T')).getTime();   // same-zone strings, so diffs are exact
+    const t = v => new Date(v.date.replace(' ', 'T') + SNOTEL_TZ).getTime();
     const last = hourly[hourly.length - 1];
     const back = hrs => hourly.find(v => t(v) === t(last) - hrs * 3600e3);
     currentDepth = last.value;
     const d24 = back(24), d48 = back(48);
     if (d24) snow24 = Math.max(0, last.value - d24.value);
     if (d48) snow48 = Math.max(0, last.value - d48.value);
-    const [day, hm] = last.date.split(' ');
-    const [hh, mm] = hm.split(':').map(Number);
+    // Show the reading time in the viewer's clock (UTC-8 station time → e.g. MST)
+    const when = new Date(t(last));
+    const hh = when.getHours(), mm = when.getMinutes();
     const clock = `${(hh % 12) || 12}${mm ? ':' + String(mm).padStart(2, '0') : ''}${hh < 12 ? 'am' : 'pm'}`;
-    const today = new Date().toLocaleDateString('en-CA');
-    asOf = day === today ? `today ${clock}` : `${day} ${clock}`;
+    const isToday = when.toDateString() === new Date().toDateString();
+    asOf = isToday ? `today ${clock}` :
+      `${when.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${clock}`;
   }
 
   container.innerHTML = `
@@ -505,6 +527,8 @@ function displaySnotel(data) {
     <div class="snotel-asof">${asOf}</div>
   `;
 
+  if (numbersOnly) return;
+
   // Chart the current snow season from Oct 1
   const now = new Date();
   const seasonStart = `${now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1}-10-01`;
@@ -512,6 +536,13 @@ function displaySnotel(data) {
   const dates = season.map(v =>
     new Date(v.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   );
+
+  // A flat line at 0 looks like a broken chart — say so explicitly
+  const note = document.getElementById('snotel-note');
+  if (note) note.textContent = season.length && Math.max(...season.map(v => v.value ?? 0)) === 0
+    ? `No lasting snow on the ground at this station since ${new Date(seasonStart + 'T12:00')
+        .toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.`
+    : '';
 
   if (snotelChart) snotelChart.destroy();
   snotelChart = new Chart(document.getElementById("snotel-chart"), {
@@ -696,6 +727,10 @@ function loadLocation(loc) {
 
   // Update SNOTEL heading
   document.querySelector('#snotel-container h2').textContent = `SNOTEL — ${snotelName}`;
+  const site = loc.snotelSite;
+  document.getElementById('snotel-site').textContent = site
+    ? `${site.elevFt.toLocaleString()} ft · ${site.aspect}-facing`
+    : '';
   document.getElementById('location-info').textContent = `${loc.label} · ${loc.coords}`;
 
   // CAIC
@@ -748,8 +783,7 @@ function loadLocation(loc) {
   setupRoadConditions(loc.roadSegments);
 
   // SNOTEL
-  getSnotelData(snotelStation)
-    .then(displaySnotel)
+  loadSnotel(snotelStation)
     .catch(err => { document.getElementById('snotel').textContent = `Error: ${err.message}`; });
 }
 

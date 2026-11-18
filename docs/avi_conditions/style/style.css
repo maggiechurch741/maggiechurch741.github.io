@@ -166,6 +166,9 @@ section h2 {
 }
 
 /* ── CAIC disclaimer ──────────────────────────────────────── */
+#snotel-note { font-size: 0.8rem; color: #6b7686; font-style: italic; margin: 0.2rem 0 -0.2rem; }
+#snotel-note:empty { display: none; }
+#snotel-site { font-size: 0.78rem; color: #6b7686; margin: -0.2rem 0 0.1rem; }
 .snotel-asof { font-size: 0.75rem; color: #9aa5b4; text-align: right; margin-top: 0.15rem; }
 
 #caic-discussion p { font-size: 0.88rem; line-height: 1.5; }
